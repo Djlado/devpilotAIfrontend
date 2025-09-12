@@ -1,51 +1,29 @@
-// Chat system
-const chatArea = document.getElementById("chatArea");
-const promptInput = document.getElementById("prompt");
-const sendBtn = document.getElementById("sendBtn");
-const clearChat = document.getElementById("clearChat");
+// script.js
 
-// Code editor + preview
-const editor = document.getElementById("editor");
-const previewBtn = document.getElementById("previewBtn");
-const previewFrame = document.getElementById("preview");
+document.getElementById("sendBtn").addEventListener("click", async () => {
+  const userPrompt = document.getElementById("userInput").value;
 
-// Add chat message
-function addChat(message, from = "user") {
-  const msg = document.createElement("div");
-  msg.className = from;
-  msg.textContent = message;
-  chatArea.appendChild(msg);
-  chatArea.scrollTop = chatArea.scrollHeight;
-}
+  if (!userPrompt) {
+    alert("Please enter a prompt!");
+    return;
+  }
 
-// Send prompt (dummy now, real AI later)
-sendBtn.addEventListener("click", () => {
-  const prompt = promptInput.value.trim();
-  if (!prompt) return;
+  try {
+    // Send request to backend
+    const response = await fetch("https://devai-qzvo7xodt-nexorai.vercel.app/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ prompt: userPrompt })
+    });
 
-  addChat("👤 " + prompt, "user");
-  promptInput.value = "";
+    const data = await response.json();
 
-  // Temporary AI response
-  setTimeout(() => {
-    const fakeCode = `
-<!DOCTYPE html>
-<html>
-<head><title>Hello</title></head>
-<body><h1>Hello from AI!</h1></body>
-</html>`;
-    addChat("🤖 Code generated!", "ai");
-    editor.value = fakeCode;
-  }, 1000);
-});
-
-// Clear chat
-clearChat.addEventListener("click", () => {
-  chatArea.innerHTML = "";
-});
-
-// Preview button
-previewBtn.addEventListener("click", () => {
-  const content = editor.value;
-  previewFrame.srcdoc = content;
+    // Show AI output in editor
+    document.getElementById("editor").value = data.reply || "No response from AI.";
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Something went wrong. Check console.");
+  }
 });
