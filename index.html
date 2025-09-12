@@ -3,38 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DevPilot AI</title>
+  <title>Nexora AI</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>🚀 DevPilot AI</h1>
-    <p>Code with your AI Copilot</p>
-  </header>
+  <div class="chat-wrapper">
+    <h1>Nexora AI</h1>
+    <div id="chat-container" class="chat-container"></div>
 
-  <main>
-    <!-- Left: AI chat -->
-    <section id="ai-section">
-      <h2>AI Assistant</h2>
-      <div id="chatArea"></div>
-      <textarea id="prompt" placeholder="Ask AI to write some code..."></textarea>
-      <button id="sendBtn">Send</button>
-      <button id="clearChat">Clear Chat</button>
-    </section>
-
-    <!-- Right: Code editor + preview -->
-    <section id="editor-section">
-      <div class="editor-controls">
-        <button id="previewBtn">▶ Preview</button>
-      </div>
-      <textarea id="editor" placeholder="Your code will appear here..."></textarea>
-      <iframe id="preview"></iframe>
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 DevPilot AI</p>
-  </footer>
+    <form id="chat-form" class="chat-form">
+      <input
+        id="user-input"
+        type="text"
+        placeholder="Type your message..."
+        autocomplete="off"
+      />
+      <button type="submit">Send</button>
+    </form>
+  </div>
 
   <script src="script.js"></script>
 </body>
