@@ -1,29 +1,43 @@
-// script.js
+// Grab DOM elements
+const form = document.getElementById("chat-form");
+const input = document.getElementById("user-input");
+const chatContainer = document.getElementById("chat-container");
 
-document.getElementById("sendBtn").addEventListener("click", async () => {
-  const userPrompt = document.getElementById("userInput").value;
+// Function to add messages to chat
+function addMessage(sender, text) {
+  const messageDiv = document.createElement("div");
+  messageDiv.classList.add("message", sender);
+  messageDiv.innerText = text;
+  chatContainer.appendChild(messageDiv);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 
-  if (!userPrompt) {
-    alert("Please enter a prompt!");
-    return;
-  }
+// Handle form submit
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const userMessage = input.value.trim();
+  if (!userMessage) return;
+
+  addMessage("user", userMessage);
+  input.value = "";
 
   try {
-    // Send request to backend
     const response = await fetch("https://devai-qzvo7xodt-nexorai.vercel.app/api/generate", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ prompt: userPrompt })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: userMessage }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
 
     const data = await response.json();
 
-    // Show AI output in editor
-    document.getElementById("editor").value = data.reply || "No response from AI.";
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Something went wrong. Check console.");
+    addMessage("bot", data.code || "No reply from server");
+  } catch (err) {
+    console.error("Error:", err);
+    addMessage("bot", "⚠️ Error: Could not reach server.");
   }
 });
