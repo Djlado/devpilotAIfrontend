@@ -1,0 +1,101 @@
+/* General styling */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0a0f1c;
+  color: #e0e0e0;
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  background: #111827;
+  color: #00ffcc;
+}
+
+main {
+  display: flex;
+  height: calc(100vh - 120px);
+}
+
+/* AI chat section */
+#ai-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  border-right: 2px solid #222;
+}
+
+#chatArea {
+  flex: 1;
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  overflow-y: auto;
+}
+
+#prompt {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #0f172a;
+  border: none;
+  border-radius: 5px;
+  color: white;
+}
+
+#sendBtn, #clearChat {
+  padding: 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: #00ffcc;
+  color: #000;
+  font-weight: bold;
+}
+
+/* Code editor section */
+#editor-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+}
+
+.editor-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+#editor {
+  flex: 1;
+  width: 100%;
+  background: #0f172a;
+  color: #00ffcc;
+  font-family: monospace;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  resize: none;
+}
+
+#preview {
+  flex: 1;
+  width: 100%;
+  border: 2px solid #222;
+  border-radius: 8px;
+  background: white;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 10px;
+  background: #111827;
+  font-size: 14px;
+}
