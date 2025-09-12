@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevPilot AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🚀 DevPilot AI</h1>
+    <p>Code with your AI Copilot</p>
+  </header>
+
+  <main>
+    <!-- Left: AI chat -->
+    <section id="ai-section">
+      <h2>AI Assistant</h2>
+      <div id="chatArea"></div>
+      <textarea id="prompt" placeholder="Ask AI to write some code..."></textarea>
+      <button id="sendBtn">Send</button>
+      <button id="clearChat">Clear Chat</button>
+    </section>
+
+    <!-- Right: Code editor + preview -->
+    <section id="editor-section">
+      <div class="editor-controls">
+        <button id="previewBtn">▶ Preview</button>
+      </div>
+      <textarea id="editor" placeholder="Your code will appear here..."></textarea>
+      <iframe id="preview"></iframe>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 DevPilot AI</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
