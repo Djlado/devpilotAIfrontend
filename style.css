@@ -2,29 +2,27 @@
    Global reset & variables
    -------------------------------------------------------------- */
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-panel: #111111;
-  --text-primary: #e0e0e0;
-  --accent-blue: #00e6ff;
-  --accent-pink: #ff00e6;
-  --accent-green: #00ff84;
-  --font-family: "Consolas", "Courier New", monospace;
+  --bg-primary: #121212;
+  --bg-panel: #1e1e1e;
+  --bg-input: #2a2a2a;
+  --text-primary: #f0f0f0;
+  --text-secondary: #aaaaaa;
+  --accent-blue: #007bff;
+  --chat-bg-user: #007bff;
+  --chat-text-user: #ffffff;
+  --chat-bg-ai: #333333;
+  --chat-text-ai: #e0e0e0;
 }
 
-/* ----------------------------------------------------------------
-   Body & background
-   ---------------------------------------------------------------- */
 body {
   margin: 0;
-  height: 100vh;
-  font-family: var(--font-family);
+  font-family: 'Poppins', sans-serif;
   color: var(--text-primary);
-  background: url('public/bg-circuits.png') no-repeat center
-    fixed;
-  background-size: cover;
+  background: var(--bg-primary);
   display: flex;
   justify-content: center;
-  align-items: stretch;
+  align-items: center;
+  min-height: 100vh;
 }
 
 /* ----------------------------------------------------------------
@@ -32,33 +30,176 @@ body {
    ---------------------------------------------------------------- */
 .app-container {
   display: flex;
-  flex-direction: row;
-  width: 95vw;
-  height: 95vh;
-  gap: 1rem;
+  width: 90vw;
+  height: 90vh;
+  gap: 1.5rem;
+  padding: 1rem;
+  background-color: var(--bg-panel);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Make panels stack on mobile */
-@media (max-width: 768px) {
-  .app-container {
-    flex-direction: column;
-  }
+.panel {
+  flex: 1;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.combined-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 2;
+  gap: 1.5rem;
+}
+
+.ai-panel {
+  flex: 1;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.editor-panel {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.preview-panel {
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
 }
 
 /* ----------------------------------------------------------------
-   Generic panel styling
+   Panel header & action button
    ---------------------------------------------------------------- */
-.panel {
-  flex: 1;
-  background: var(--bg-panel);
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+.panel-header {
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-panel);
 }
 
+.panel-header h2 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.action-btn {
+  background: #3a3a3a;
+  border: none;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.action-btn:hover {
+  background: #555555;
+  transform: translateY(-2px);
+}
+
+/* ----------------------------------------------------------------
+   Code Editor & Preview
+   ---------------------------------------------------------------- */
+#codeEditor {
+  flex: 1;
+  width: 100%;
+  padding: 1rem;
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: none;
+  resize: none;
+  outline: none;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-family: 'Fira Code', 'Courier New', monospace;
+}
+
+#previewFrame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #f0f0f0;
+  display: none; /* Initially hidden */
+}
+
+/* ----------------------------------------------------------------
+   AI Assistant – chat UI
+   ---------------------------------------------------------------- */
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  margin: 0.5rem 0;
+  padding: 0.7rem 1rem;
+  border-radius: 18px;
+  line-height: 1.5;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.message.user {
+  background: var(--chat-bg-user);
+  color: var(--chat-text-user);
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.message.ai {
+  background: var(--chat-bg-ai);
+  color: var(--chat-text-ai);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+/* Chat input area */
+.chat-form {
+  display: flex;
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-form input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  background: var(--bg-input);
+  border: none;
+  border-radius: 20px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.chat-form input::placeholder {
+  color: var(--text-secondary);
+}
+
+.chat-form button {
+  margin-left: 0.8rem;
+  padding: 0 1.2rem;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chat-form button:hover {
+  background: #0056b3;
+}
 /* Neon border effect */
 .panel::before {
   content: "";
