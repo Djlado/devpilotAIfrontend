@@ -3,28 +3,320 @@
 <head>
   <meta charset="UTF-8" />
   <title>DevPilot AI – Code‑First Assistant</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Favicon – optional -->
-  <link rel="icon" href="public/ai-avatar.png" />
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-panel: #1a1a1a;
+      --bg-darker: #111111;
+      --text-primary: #e0e0e0;
+      --text-secondary: #b0b0b0;
+      --accent-blue: #00e6ff;
+      --accent-pink: #ff00e6;
+      --accent-green: #00ff84;
+      --accent-purple: #8b5cf6;
+      --font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "Consolas", "Courier New", monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* AI Panel - Left Side - COMPACT */
+    .ai-panel {
+      width: 300px;
+      background: var(--bg-panel);
+      border-right: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ai-header {
+      padding: 12px 16px;
+      background: var(--bg-darker);
+      border-bottom: 1px solid #333;
+      flex-shrink: 0;
+    }
+
+    .ai-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      margin-bottom: 2px;
+    }
+
+    .ai-header p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* FIXED CHAT CONTAINER - SCROLLABLE */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0; /* Important for flexbox scrolling */
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--accent-blue), #0066cc);
+      color: white;
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: var(--bg-darker);
+      border: 1px solid #333;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: pre-wrap;
+    }
+
+    /* COMPACT CHAT INPUT */
+    .chat-form {
+      padding: 12px;
+      background: var(--bg-darker);
+      border-top: 1px solid #333;
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .chat-form input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--bg-panel);
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .chat-form input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .send-btn {
+      padding: 8px 16px;
+      background: var(--accent-pink);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .send-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Code Panel - Right Side */
+    .code-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-panel);
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--bg-darker);
+      border-bottom: 1px solid #333;
+      flex-shrink: 0;
+    }
+
+    .code-tabs {
+      display: flex;
+    }
+
+    .tab {
+      padding: 6px 12px;
+      background: var(--bg-panel);
+      color: var(--text-secondary);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .tab.active {
+      background: var(--bg-primary);
+      color: var(--accent-blue);
+    }
+
+    .preview-btn {
+      padding: 8px 16px;
+      background: var(--accent-green);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .preview-btn:hover {
+      opacity: 0.9;
+    }
+
+    .code-content {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    .editor-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #codeEditor {
+      flex: 1;
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: none;
+      resize: none;
+      outline: none;
+      font-size: 13px;
+      line-height: 1.5;
+      font-family: var(--font-mono);
+    }
+
+    .preview-container {
+      width: 50%;
+      border-left: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      padding: 8px 16px;
+      background: var(--bg-darker);
+      border-bottom: 1px solid #333;
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    #previewFrame {
+      flex: 1;
+      border: none;
+      background: white;
+    }
+
+    /* PROPER SCROLLBARS */
+    .chat-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-container::-webkit-scrollbar-track {
+      background: var(--bg-panel);
+    }
+
+    .chat-container::-webkit-scrollbar-thumb {
+      background: var(--accent-blue);
+      border-radius: 2px;
+    }
+
+    #codeEditor::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #codeEditor::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    #codeEditor::-webkit-scrollbar-thumb {
+      background: var(--accent-green);
+      border-radius: 4px;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .app-container {
+        flex-direction: column;
+      }
+      
+      .ai-panel {
+        width: 100%;
+        height: 200px;
+      }
+      
+      .preview-container {
+        display: none;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #333;
+      border-radius: 50%;
+      border-top-color: var(--accent-blue);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
   <div class="app-container">
-    <!-- AI Assistant Panel - Left Side -->
+    <!-- AI Assistant Panel - Left Side - COMPACT -->
     <section class="ai-panel">
       <header class="ai-header">
-        <h2>🤖 AI Assistant</h2>
-        <p>Ask for code and watch it appear!</p>
+        <h2>🤖 DevPilot AI</h2>
+        <p>Your coding assistant</p>
       </header>
 
       <div id="chatContainer" class="chat-container">
-        <!-- Chat messages will be inserted here -->
+        <!-- Messages appear here -->
       </div>
 
       <form id="chatForm" class="chat-form">
         <input
           type="text"
           id="promptInput"
-          placeholder="Ask for a navbar, carousel, or any component..."
+          placeholder="Ask for code..."
           autocomplete="off"
           required
         />
@@ -36,60 +328,199 @@
     <section class="code-panel">
       <header class="code-header">
         <div class="code-tabs">
-          <button class="tab active" data-tab="editor">📝 Code Editor</button>
+          <button class="tab active">📝 Editor</button>
         </div>
-        <button id="previewBtn" class="preview-btn">Preview</button>
+        <button id="previewBtn" class="preview-btn">▶ Preview</button>
       </header>
 
       <div class="code-content">
         <div class="editor-container">
-          <textarea id="codeEditor" spellcheck="false" placeholder="Start coding here..."></textarea>
+          <textarea id="codeEditor" placeholder="Your code appears here..."></textarea>
         </div>
         
         <div class="preview-container">
-          <div class="preview-header">Live Preview</div>
+          <div class="preview-header">🔍 Live Preview</div>
           <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
         </div>
       </div>
     </section>
   </div>
 
-  <script src="script.js" type="module"></script>
-</body>
-</html>        </header>
-        <textarea id="codeEditor" spellcheck="false"></textarea>
-      </section>
+  <script>
+    // API Configuration
+    const API_BASE_URL = 'http://localhost:3000'; // Change this for production
 
-      <section class="panel preview-panel">
-        <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
-      </section>
-    </div>
+    /* Global elements */
+    const editor = document.getElementById('codeEditor');
+    const previewBtn = document.getElementById('previewBtn');
+    const previewFrame = document.getElementById('previewFrame');
+    const chatForm = document.getElementById('chatForm');
+    const promptInput = document.getElementById('promptInput');
+    const chatContainer = document.getElementById('chatContainer');
+
+    /* Add message to chat */
+    function addMessage({ role, text }) {
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.textContent = text;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    /* Show loading */
+    function showLoading() {
+      const div = document.createElement('div');
+      div.className = 'message ai loading-msg';
+      div.innerHTML = '<div class="loading"></div> Generating...';
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      return div;
+    }
+
+    /* Preview button */
+    previewBtn.addEventListener('click', () => {
+      const code = editor.value.trim();
+      if (!code) return;
+      
+      const doc = `
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>${extractCSS(code)}</style>
+          </head>
+          <body>
+            ${extractHTML(code)}
+            <script>${extractJS(code)}<\/script>
+          </body>
+        </html>`;
+      
+      previewFrame.srcdoc = doc;
+    });
+
+    /* Chat form */
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const prompt = promptInput.value.trim();
+      if (!prompt) return;
+
+      // Add user message
+      addMessage({ role: 'user', text: prompt });
+      promptInput.value = '';
+      
+      // Disable form
+      promptInput.disabled = true;
+      const submitBtn = chatForm.querySelector('button');
+      submitBtn.disabled = true;
+
+      // Show loading
+      const loading = showLoading();
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // Remove loading
+        chatContainer.removeChild(loading);
+        
+        // Add AI response
+        addMessage({ role: 'ai', text: data.code });
+        
+        // Insert code
+        insertAtCursor(editor, data.code);
+        
+        // Auto preview
+        setTimeout(() => previewBtn.click(), 300);
+        
+      } catch (error) {
+        console.error('Error:', error);
+        chatContainer.removeChild(loading);
+        addMessage({ role: 'ai', text: '❌ Error generating code. Please try again.' });
+      } finally {
+        promptInput.disabled = false;
+        submitBtn.disabled = false;
+        promptInput.focus();
+      }
+    });
+
+    /* Insert text at cursor */
+    function insertAtCursor(textarea, text) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const before = textarea.value.substring(0, start);
+      const after = textarea.value.substring(end);
+      
+      textarea.value = before + '\n\n' + text + after;
+      textarea.selectionStart = textarea.selectionEnd = start + text.length + 2;
+      textarea.focus();
+    }
+
+    /* Extract HTML/CSS/JS */
+    function extractHTML(src) {
+      return src.replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<script[\s\S]*?<\/script>/gi, '').trim();
+    }
+
+    function extractCSS(src) {
+      const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+      return match ? match[1].trim() : '';
+    }
+
+    function extractJS(src) {
+      const match = src.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+      return match ? match[1].trim() : '';
+    }
+
+    /* Starter code */
+    editor.value = `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      max-width: 600px;
+    }
+    h1 { font-size: 3rem; margin-bottom: 1rem; }
+    p { font-size: 1.2rem; opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DevPilot AI</h1>
+    <p>Ask me to create any web component!</p>
   </div>
-
-  <script src="script.js" type="module"></script>
 </body>
-</html>
-      <header class="panel-header">
-        <h2>🤖 AI Assistant</h2>
-      </header>
+</html>`;
 
-      <div id="chatContainer" class="chat-container">
-        <!-- Conversation bubbles are injected here -->
-      </div>
+    // Auto-preview on load
+    previewBtn.click();
 
-      <form id="chatForm" class="chat-form">
-        <input
-          type="text"
-          id="promptInput"
-          placeholder="Ask for a navbar, a carousel, …"
-          autocomplete="off"
-          required
-        />
-        <button type="submit" class="action-btn">Send</button>
-      </form>
-    </section>
-  </div>
-
-  <script src="script.js" type="module"></script>
+    // Welcome message
+    setTimeout(() => {
+      addMessage({
+        role: 'ai',
+        text: '👋 Hi! I can create buttons, navbars, cards, forms, and more. What do you need?'
+      });
+    }, 500);
+  </script>
 </body>
-</html>
+</html
