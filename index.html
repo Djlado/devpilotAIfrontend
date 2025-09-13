@@ -33,35 +33,38 @@
       display: flex;
       height: 100vh;
       width: 100vw;
+      padding: 20px;
+      gap: 20px;
     }
 
-    /* AI Panel */
+    /* AI Panel - Compact */
     .ai-panel {
-      width: 350px;
+      width: 320px;
       background: var(--bg-panel);
-      border-right: 2px solid var(--accent-blue);
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
-      box-shadow: 2px 0 10px rgba(0, 230, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid #333;
     }
 
     .ai-header {
-      padding: 15px 20px;
+      padding: 16px 20px;
       background: var(--bg-darker);
-      border-bottom: 2px solid var(--accent-blue);
+      border-bottom: 1px solid #333;
+      border-radius: 16px 16px 0 0;
       flex-shrink: 0;
     }
 
     .ai-header h2 {
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 600;
       color: var(--accent-blue);
-      margin-bottom: 5px;
-      text-shadow: 0 0 10px rgba(0, 230, 255, 0.5);
+      margin-bottom: 4px;
     }
 
     .ai-header p {
-      font-size: 14px;
+      font-size: 12px;
       color: var(--text-secondary);
     }
 
@@ -73,29 +76,29 @@
     }
 
     .chat-form {
-      padding: 15px;
+      padding: 16px;
       background: var(--bg-darker);
-      border-bottom: 2px solid var(--accent-blue);
+      border-bottom: 1px solid #333;
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-shrink: 0;
     }
 
     .chat-form input {
       flex: 1;
-      padding: 12px 15px;
+      padding: 12px 16px;
       background: var(--bg-panel);
-      border: 1px solid var(--accent-blue);
-      border-radius: 8px;
+      border: 1px solid #444;
+      border-radius: 12px;
       color: var(--text-primary);
       font-size: 14px;
       outline: none;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
     .chat-form input:focus {
       border-color: var(--accent-green);
-      box-shadow: 0 0 10px rgba(0, 255, 132, 0.3);
+      box-shadow: 0 0 0 2px rgba(0, 255, 132, 0.2);
     }
 
     .chat-form input::placeholder {
@@ -107,17 +110,17 @@
       padding: 12px 20px;
       background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       color: white;
       font-weight: 600;
       cursor: pointer;
       font-size: 14px;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
     .send-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 5px 15px rgba(255, 0, 230, 0.4);
+      box-shadow: 0 4px 12px rgba(255, 0, 230, 0.3);
     }
 
     .send-btn:disabled {
@@ -129,16 +132,16 @@
     .chat-container {
       flex: 1;
       overflow-y: auto;
-      padding: 15px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       min-height: 0;
     }
 
     .message {
-      max-width: 85%;
-      padding: 10px 15px;
+      max-width: 90%;
+      padding: 12px 16px;
       border-radius: 12px;
       font-size: 13px;
       line-height: 1.4;
@@ -154,6 +157,7 @@
       align-self: flex-end;
       background: linear-gradient(135deg, var(--accent-blue), #0066cc);
       color: white;
+      box-shadow: 0 4px 12px rgba(0, 230, 255, 0.2);
     }
 
     .message.ai {
@@ -161,9 +165,10 @@
       background: var(--bg-darker);
       border: 1px solid #333;
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 12px;
       white-space: pre-wrap;
       word-break: break-word;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     .loading {
@@ -180,61 +185,84 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Code Panel */
+    /* Code Panel - Box Shaped */
     .code-panel {
       flex: 1;
       display: flex;
       flex-direction: column;
       background: var(--bg-panel);
-      position: relative;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid #333;
+      overflow: hidden;
     }
 
     .code-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 16px;
+      padding: 16px 20px;
       background: var(--bg-darker);
       border-bottom: 1px solid #333;
       flex-shrink: 0;
     }
 
     .tab {
-      padding: 6px 12px;
+      padding: 8px 16px;
       background: var(--bg-primary);
       color: var(--accent-blue);
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       font-size: 13px;
+      font-weight: 500;
     }
 
     .preview-btn {
-      padding: 8px 16px;
+      padding: 10px 20px;
       background: var(--accent-green);
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
       color: white;
       font-weight: 600;
       cursor: pointer;
       font-size: 13px;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
     .preview-btn:hover {
-      opacity: 0.9;
       transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 255, 132, 0.3);
     }
 
     .code-content {
       flex: 1;
       display: flex;
       min-height: 0;
+      padding: 20px;
+      gap: 20px;
     }
 
-    .editor-container {
+    .editor-box, .preview-box {
       flex: 1;
       display: flex;
       flex-direction: column;
+      background: var(--bg-darker);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      border: 1px solid #333;
+    }
+
+    .editor-header, .preview-header {
+      padding: 12px 16px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid #333;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     #codeEditor {
@@ -251,22 +279,6 @@
       font-family: var(--font-mono);
     }
 
-    .preview-container {
-      width: 50%;
-      border-left: 1px solid #333;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .preview-header {
-      padding: 8px 16px;
-      background: var(--bg-darker);
-      border-bottom: 1px solid #333;
-      font-size: 12px;
-      color: var(--text-secondary);
-      flex-shrink: 0;
-    }
-
     #previewFrame {
       flex: 1;
       border: none;
@@ -275,23 +287,73 @@
 
     /* Scrollbars */
     .chat-container::-webkit-scrollbar {
-      width: 4px;
+      width: 6px;
     }
 
     .chat-container::-webkit-scrollbar-track {
       background: var(--bg-panel);
+      border-radius: 3px;
     }
 
     .chat-container::-webkit-scrollbar-thumb {
       background: var(--accent-blue);
-      border-radius: 2px;
+      border-radius: 3px;
+    }
+
+    #codeEditor::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #codeEditor::-webkit-scrollbar-track {
+      background: var(--bg-darker);
+      border-radius: 4px;
+    }
+
+    #codeEditor::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+
+    #codeEditor::-webkit-scrollbar-thumb:hover {
+      background: #555;
     }
 
     /* Mobile Responsive */
+    @media (max-width: 968px) {
+      .app-container { 
+        flex-direction: column; 
+        padding: 12px;
+        gap: 12px;
+      }
+      .ai-panel { 
+        width: 100%; 
+        height: 300px; 
+      }
+      .code-content {
+        flex-direction: column;
+        padding: 12px;
+        gap: 12px;
+      }
+      .editor-box, .preview-box {
+        min-height: 250px;
+      }
+    }
+
     @media (max-width: 768px) {
-      .app-container { flex-direction: column; }
-      .ai-panel { width: 100%; height: 250px; }
-      .preview-container { display: none; }
+      .app-container { 
+        padding: 8px;
+        gap: 8px;
+      }
+      .ai-panel { 
+        height: 250px; 
+      }
+      .code-content {
+        padding: 8px;
+        gap: 8px;
+      }
+      .editor-box, .preview-box {
+        min-height: 200px;
+      }
     }
   </style>
 </head>
@@ -316,7 +378,7 @@
         </form>
 
         <div id="chatContainer" class="chat-container">
-          <!-- Messages appear here -->
+          <!-- Only generated messages appear here -->
         </div>
       </div>
     </section>
@@ -328,11 +390,12 @@
       </header>
 
       <div class="code-content">
-        <div class="editor-container">
-          <textarea id="codeEditor" placeholder="Your generated code appears here..."></textarea>
+        <div class="editor-box">
+          <div class="editor-header">💻 Code Editor</div>
+          <textarea id="codeEditor" placeholder="Generated code will appear here..."></textarea>
         </div>
         
-        <div class="preview-container">
+        <div class="preview-box">
           <div class="preview-header">🔍 Live Preview</div>
           <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
         </div>
@@ -341,8 +404,8 @@
   </div>
 
   <script>
-    // 🌐 N8N WEBHOOK URL
-    const N8N_WEBHOOK_URL = 'https://n8n-latest1-0.onrender.com/webhook/f8fdb8a5-1136-49e6-8447-e1dfd7d65466';
+    // n8n Webhook URL
+    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook/43fa1fd8-0ad7-4931-9e71-416809263fff';
 
     // DOM Elements
     const editor = document.getElementById('codeEditor');
@@ -367,7 +430,7 @@
     function showLoading() {
       const div = document.createElement('div');
       div.className = 'message ai';
-      div.innerHTML = '<div class="loading"></div> Generating code...';
+      div.innerHTML = '<div class="loading"></div> Generating...';
       chatContainer.appendChild(div);
       chatContainer.scrollTop = chatContainer.scrollHeight;
       return div;
@@ -391,22 +454,7 @@
       return match ? match[1].trim() : '';
     }
 
-    // Insert text at cursor position
-    function insertAtCursor(textarea, text) {
-      const start = textarea.selectionStart || 0;
-      const end = textarea.selectionEnd || 0;
-      const before = textarea.value.substring(0, start);
-      const after = textarea.value.substring(end);
-      
-      const separator = (before && !before.endsWith('\n')) ? '\n\n' : '';
-      textarea.value = before + separator + text + after;
-      
-      const newPos = start + separator.length + text.length;
-      textarea.selectionStart = textarea.selectionEnd = newPos;
-      textarea.focus();
-    }
-
-    // Preview button functionality - FIXED
+    // Preview button
     previewBtn.addEventListener('click', () => {
       const code = editor.value.trim();
       if (!code) {
@@ -420,7 +468,15 @@
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>${extractCSS(code)}</style>
+            <style>
+              body { 
+                margin: 0; 
+                padding: 20px; 
+                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                background: #f8f9fa;
+              }
+              ${extractCSS(code)}
+            </style>
           </head>
           <body>
             ${extractHTML(code)}
@@ -429,21 +485,13 @@
         </html>`;
       
       previewFrame.srcdoc = doc;
-      
-      // Visual feedback
-      previewBtn.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        previewBtn.style.transform = 'scale(1)';
-      }, 150);
     });
 
-    // Chat form submission - MODIFIED FOR N8N
+    // Chat form submission
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const prompt = promptInput.value.trim();
       if (!prompt) return;
-
-      console.log('🚀 Sending request to n8n:', prompt);
 
       // Add user message
       addMessage({ role: 'user', text: prompt });
@@ -458,10 +506,7 @@
       const loading = showLoading();
 
       try {
-        console.log('📡 Calling n8n webhook:', N8N_WEBHOOK_URL);
-        
-        // Send request to n8n webhook
-        const response = await fetch(N8N_WEBHOOK_URL, {
+        const response = await fetch(API_BASE_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -469,55 +514,36 @@
           body: JSON.stringify({ prompt })
         });
 
-        console.log('📨 Response status:', response.status);
-
         if (!response.ok) {
-          throw new Error(`n8n error: ${response.status}`);
+          throw new Error(`HTTP ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('✅ Response from n8n:', data);
         
         // Remove loading
         if (loading.parentNode) {
           chatContainer.removeChild(loading);
         }
         
-        // Add AI response - assuming n8n returns { code: "generated code" }
-        if (data && data.code) {
-          // Don't show HTML code in chat, just confirmation message
-          addMessage({ role: 'ai', text: '✅ Code generated successfully! Click "Preview" to see it.' });
-          
-          // Insert code into editor
-          insertAtCursor(editor, data.code);
-          
-          // Auto preview after a short delay
-          setTimeout(() => {
-            previewBtn.click();
-          }, 500);
-        } else {
-          addMessage({ 
-            role: 'ai', 
-            text: '❌ No code returned from n8n. Check your workflow configuration.' 
-          });
-        }
+        // Add AI response
+        addMessage({ role: 'ai', text: '✅ Code generated successfully! Click "Preview" to see it.' });
+        
+        // Insert code into editor (replace existing content)
+        editor.value = data.code;
+        
+        // Auto preview
+        setTimeout(() => {
+          previewBtn.click();
+        }, 300);
         
       } catch (error) {
-        console.error('❌ Error:', error);
-        
         // Remove loading
         if (loading.parentNode) {
           chatContainer.removeChild(loading);
         }
         
-        let errorMessage = '❌ ';
-        if (error.message.includes('Failed to fetch')) {
-          errorMessage += 'Cannot connect to n8n webhook. Check your URL and CORS settings.';
-        } else {
-          errorMessage += error.message || 'Something went wrong. Please try again.';
-        }
-        
-        addMessage({ role: 'ai', text: errorMessage });
+        // Simple error message
+        addMessage({ role: 'ai', text: '❌ Error generating code. Please try again.' });
       } finally {
         // Re-enable form
         promptInput.disabled = false;
@@ -527,66 +553,16 @@
       }
     });
 
-    // Starter code
-    editor.value = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DevPilot AI Demo</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      margin: 0;
-      padding: 2rem;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      text-align: center;
-      max-width: 600px;
-      padding: 2rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-    }
-    h1 { font-size: 3rem; margin-bottom: 1rem; }
-    p { font-size: 1.2rem; opacity: 0.9; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>DevPilot AI</h1>
-    <p>Ask me to create any web component!</p>
-  </div>
-</body>
-</html>`;
-
-    // Auto-preview on load
-    setTimeout(() => {
-      previewBtn.click();
-    }, 1000);
+    // Focus input on load
+    promptInput.focus();
 
     // Welcome message
     setTimeout(() => {
       addMessage({
         role: 'ai',
-        text: '👋 Hi! I can create buttons, navbars, cards, forms, and more. What would you like to build?'
+        text: '👋 Hi! I'm Devpilot Ai. What would you like to build?'
       });
-    }, 1500);
-
-    // Test connection on load
-    setTimeout(() => {
-      console.log('🔗 Using n8n webhook:', N8N_WEBHOOK_URL);
-      addMessage({
-        role: 'ai',
-        text: '🔗 Connected to n8n workflow. Ready to generate code!'
-      });
-    }, 2000);
+    }, 1000);
   </script>
 </body>
-  </html>
+</html>
