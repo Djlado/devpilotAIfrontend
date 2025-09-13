@@ -323,7 +323,7 @@ border-radius: 2px;
 </div>
 
   </div>    
-</section>    </div>   <script>
+</section>    </div>    <script>
     // 🌐 N8N WEBHOOK URL
     const N8N_WEBHOOK_URL = 'https://n8n-latest1-0.onrender.com/webhook/f8fdb8a5-1136-49e6-8447-e1dfd7d65466';
 
@@ -355,6 +355,69 @@ border-radius: 2px;
         chatContainer.scrollTop = chatContainer.scrollHeight;
         return div;
     }
+
+    // Extract HTML/CSS/JS from code
+    function extractHTML(src) {
+        return src
+            .replace(/<style[\s\S]*?<\/style>/gi, '')
+            .replace(/<script[\s\S]*?<\/script>/gi, '')
+            .trim();
+    }
+
+    function extractCSS(src) {
+        const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+        return match ? match[1].trim() : '';
+    }
+
+    function extractJS(src) {
+        const match = src.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+        return match ? match[1].trim() : '';
+    }
+
+    // Insert text at cursor position
+    function insertAtCursor(textarea, text) {
+        const start = textarea.selectionStart || 0;
+        const end = textarea.selectionEnd || 0;
+        const before = textarea.value.substring(0, start);
+        const after = textarea.value.substring(end);
+        
+        const separator = (before && !before.endsWith('\n')) ? '\n\n' : '';
+        textarea.value = before + separator + text + after;
+        
+        const newPos = start + separator.length + text.length;
+        textarea.selectionStart = textarea.selectionEnd = newPos;
+        textarea.focus();
+    }
+
+    // Preview button functionality
+    previewBtn.addEventListener('click', () => {
+        const code = editor.value.trim();
+        if (!code) {
+            alert('Please add some code to preview!');
+            return;
+        }
+        
+        const doc = `
+            <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>${extractCSS(code)}</style>
+                </head>
+                <body>
+                    ${extractHTML(code)}
+                    <script>${extractJS(code)}<\/script>
+                </body>
+            </html>`;
+        
+        previewFrame.srcdoc = doc;
+        
+        // Visual feedback
+        previewBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            previewBtn.style.transform = 'scale(1)';
+        }, 150);
+    });
 
     // Chat form submission - MODIFIED FOR N8N
     chatForm.addEventListener('submit', async (e) => {
@@ -445,39 +508,6 @@ border-radius: 2px;
         }
     });
 
-    // Insert text at cursor position
-    function insertAtCursor(textarea, text) {
-        const start = textarea.selectionStart || 0;
-        const end = textarea.selectionEnd || 0;
-        const before = textarea.value.substring(0, start);
-        const after = textarea.value.substring(end);
-        
-        const separator = (before && !before.endsWith('\n')) ? '\n\n' : '';
-        textarea.value = before + separator + text + after;
-        
-        const newPos = start + separator.length + text.length;
-        textarea.selectionStart = textarea.selectionEnd = newPos;
-        textarea.focus();
-    }
-
-    // Extract HTML/CSS/JS from code
-    function extractHTML(src) {
-        return src
-            .replace(/<style[\s\S]*?<\/style>/gi, '')
-            .replace(/<script[\s\S]*?<\/script>/gi, '')
-            .trim();
-    }
-
-    function extractCSS(src) {
-        const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-        return match ? match[1].trim() : '';
-    }
-
-    function extractJS(src) {
-        const match = src.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
-        return match ? match[1].trim() : '';
-    }
-
     // Starter code
     editor.value = `<!DOCTYPE html>
 <html lang="en">
@@ -538,6 +568,6 @@ border-radius: 2px;
             text: '🔗 Connected to n8n workflow. Ready to generate code!'
         });
     }, 2000);
-</script> 
-</body
+</script>   
+</body>    
 </html>
