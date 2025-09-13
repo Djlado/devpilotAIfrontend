@@ -1,17 +1,14 @@
-// script.js – Plain-JS Front-end
-// Global elements
+/* script.js – DevPilot AI Frontend */
+
+/* Global elements */
 const editor = document.getElementById('codeEditor');
 const previewBtn = document.getElementById('previewBtn');
 const previewFrame = document.getElementById('previewFrame');
 const chatForm = document.getElementById('chatForm');
 const promptInput = document.getElementById('promptInput');
 const chatContainer = document.getElementById('chatContainer');
-const editorPanel = document.querySelector('.editor-panel');
-const previewPanel = document.querySelector('.preview-panel');
 
-/* ----------------------------------------------------------------
-   Helper: Append a chat bubble
-   ---------------------------------------------------------------- */
+/* Helper: Append a chat bubble */
 function addMessage({ role, text }) {
   const div = document.createElement('div');
   div.className = `message ${role}`;
@@ -20,134 +17,23 @@ function addMessage({ role, text }) {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-/* ----------------------------------------------------------------
-   1️⃣ Preview button – Toggle editor/preview views
-   ---------------------------------------------------------------- */
+/* Preview button – inject editor content into the iframe */
 previewBtn.addEventListener('click', () => {
-  const isPreviewing = previewFrame.style.display !== 'none';
-
-  if (!isPreviewing) {
-    // Show preview
-    const userCode = editor.value;
-    const doc = `
-      <html>
-        <head>
-          <style>${extractCSS(userCode)}</style>
-        </head>
-        <body>
-          ${extractHTML(userCode)}
-          <script>${extractJS(userCode)}<\/script>
-        </body>
-      </html>`;
-    previewFrame.srcdoc = doc;
-    editorPanel.style.display = 'none';
-    previewPanel.style.display = 'flex';
-    previewFrame.style.display = 'block';
-    previewBtn.textContent = '📝 Code Editor';
-  } else {
-    // Show editor
-    editorPanel.style.display = 'flex';
-    previewPanel.style.display = 'none';
-    previewFrame.style.display = 'none';
-    previewBtn.textContent = '▶︎ Live Preview';
-  }
-});
-
-/* ----------------------------------------------------------------
-   2️⃣ Chat form – send prompt to backend, insert resulting code
-   ---------------------------------------------------------------- */
-chatForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const prompt = promptInput.value.trim();
-  if (!prompt) return;
-
-  // Show user bubble
-  addMessage({ role: 'user', text: prompt });
-  promptInput.value = '';
-  promptInput.disabled = true;
-
-  try {
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-
-    if (!res.ok) throw new Error(`Server ${res.status}`);
-
-    const { code } = await res.json();
-
-    // Show AI bubble (code can be multiline)
-    addMessage({ role: 'ai', text: code });
-
-    // Insert the generated snippet at the cursor position
-    insertAtCursor(editor, code);
-  } catch (err) {
-    console.error(err);
-    addMessage({ role: 'ai', text: `❗️ Error: ${err.message}` });
-  } finally {
-    promptInput.disabled = false;
-    promptInput.focus();
-  }
-});
-
-/* ----------------------------------------------------------------
-   Utility: Insert text at current cursor position in <textarea>
-   ---------------------------------------------------------------- */
-function insertAtCursor(textarea, text) {
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const before = textarea.value.substring(0, start);
-  const after = textarea.value.substring(end);
-  textarea.value = `${before}${text}${after}`;
-  // put cursor after inserted text
-  const newPos = start + text.length;
-  textarea.selectionStart = textarea.selectionEnd = newPos;
-  textarea.focus();
-}
-
-/* ----------------------------------------------------------------
-   Simple parsers – split a mixed HTML/CSS/JS block into its parts.
-   This is very tolerant; you can improve it later.
-   ---------------------------------------------------------------- */
-function extractHTML(src) {
-  // Anything outside <style> or <script> is assumed HTML
-  return src
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .trim();
-}
-function extractCSS(src) {
-  const match = src.match(/<style[\s\S]?>([\s\S]?)<\/style>/i);
-  return match ? match[1].trim() : '';
-}
-function extractJS(src) {
-  const match = src.match(/<script[\s\S]?>([\s\S]?)<\/script>/i);
-  return match ? match[1].trim() : '';
-}
-
-/* ----------------------------------------------------------------
-   Optional: pre-populate the editor with a starter skeleton
-   ---------------------------------------------------------------- */
-editor.value = `<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Arial; background:#111; color:#eee; }
-  </style>
-</head>
-<body>
-  <h1>Welcome to DevPilot AI</h1>
-  <p>Ask the AI for code and watch it appear here!</p>
-</body>
-</html>`;
+  const userCode = editor.value;
+  const doc = `
+    <html>
+      <head>
+        <style>${extractCSS(userCode)}</style>
+      </head>
+      <body>
+        ${extractHTML(userCode)}
+        <script>${extractJS(userCode)}<\/script>
+      </body>
     </html>`;
   previewFrame.srcdoc = doc;
 });
 
-/* ----------------------------------------------------------------
-   2️⃣ Chat form – send prompt to backend, insert resulting code
-   ---------------------------------------------------------------- */
+/* Chat form – simulate AI response (since no backend) */
 chatForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const prompt = promptInput.value.trim();
@@ -158,78 +44,87 @@ chatForm.addEventListener('submit', async (e) => {
   promptInput.value = '';
   promptInput.disabled = true;
 
-  try {
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
+  // Show loading
+  const loadingDiv = document.createElement('div');
+  loadingDiv.className = 'message ai';
+  loadingDiv.innerHTML = '<div class="loading"></div> Generating code...';
+  chatContainer.appendChild(loadingDiv);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    if (!res.ok) throw new Error(`Server ${res.status}`);
+  // Simulate API delay
+  setTimeout(() => {
+    chatContainer.removeChild(loadingDiv);
 
-    const { code } = await res.json();
-
-    // Show AI bubble (code can be multiline)
+    // Generate sample code based on prompt
+    let code = generateSampleCode(prompt);
+    
+    // Show AI response
     addMessage({ role: 'ai', text: code });
-
+    
     // Insert the generated snippet at the cursor position
     insertAtCursor(editor, code);
-  } catch (err) {
-    console.error(err);
-    addMessage({ role: 'ai', text: `❗️ Error: ${err.message}` });
-  } finally {
+    
     promptInput.disabled = false;
     promptInput.focus();
-  }
+  }, 2000);
 });
 
-/* ----------------------------------------------------------------
-   Utility: Insert text at current cursor position in <textarea>
-   ---------------------------------------------------------------- */
+/* Generate sample code based on prompt */
+function generateSampleCode(prompt) {
+  const lowerPrompt = prompt.toLowerCase();
+  
+  if (lowerPrompt.includes('button')) {
+    return `<button style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Click Me!</button>`;
+  } else if (lowerPrompt.includes('navbar') || lowerPrompt.includes('nav')) {
+    return `<nav style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+  <div style="font-size: 1.5rem; font-weight: bold;">Brand</div>
+  <div style="display: flex; gap: 2rem;">
+    <a href="#" style="color: white; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Home</a>
+    <a href="#" style="color: white; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">About</a>
+    <a href="#" style="color: white; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Contact</a>
+  </div>
+</nav>`;
+  } else if (lowerPrompt.includes('card')) {
+    return `<div style="max-width: 300px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+  <div style="height: 200px; background: linear-gradient(45deg, #ff9a9e, #fecfef); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">🎨</div>
+  <div style="padding: 1.5rem;">
+    <h3 style="margin: 0 0 0.5rem 0; color: #333;">Beautiful Card</h3>
+    <p style="color: #666; line-height: 1.6;">This is a sample card component with hover effects and modern styling.</p>
+  </div>
+</div>`;
+  } else {
+    return `<!-- Generated code for: ${prompt} -->
+<div style="padding: 2rem; background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; border-radius: 12px; text-align: center; font-family: 'Arial', sans-serif;">
+  <h2 style="margin: 0 0 1rem 0;">🚀 ${prompt}</h2>
+  <p style="margin: 0; opacity: 0.9;">This is a sample implementation. Ask for more specific features!</p>
+</div>`;
+  }
+}
+
+/* Utility: Insert text at current cursor position */
 function insertAtCursor(textarea, text) {
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const before = textarea.value.substring(0, start);
   const after = textarea.value.substring(end);
   textarea.value = `${before}${text}${after}`;
-  // put cursor after inserted text
   const newPos = start + text.length;
   textarea.selectionStart = textarea.selectionEnd = newPos;
   textarea.focus();
 }
 
-/* ----------------------------------------------------------------
-   Simple parsers – split a mixed HTML/CSS/JS block into its parts.
-   This is *very* tolerant; you can improve it later.
-   ---------------------------------------------------------------- */
+/* Simple parsers for HTML/CSS/JS extraction */
 function extractHTML(src) {
-  // Anything outside <style> or <script> is assumed HTML
   return src
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .trim();
 }
+
 function extractCSS(src) {
-  const match = src.match(/<style[\s\S]*?>([\s\S]*?)<\/style>/i);
-  return match ? match[1].trim() : '';
-}
-function extractJS(src) {
-  const match = src.match(/<script[\s\S]*?>([\s\S]*?)<\/script>/i);
+  const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
   return match ? match[1].trim() : '';
 }
 
-/* ----------------------------------------------------------------
-   Optional: pre‑populate the editor with a starter skeleton
-   ---------------------------------------------------------------- */
-editor.value = `<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Arial; background:#111; color:#eee; }
-  </style>
-</head>
-<body>
-  <h1>Welcome to DevPilot AI</h1>
-  <p>Ask the AI for code and watch it appear here!</p>
-</body>
-</html>`;
+function extractJS(src) {
+  const match = src.match(/<script[
