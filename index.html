@@ -2,39 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>DevPilot AI – Code-First Assistant</title>
+  <title>DevPilot AI – Code‑First Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Favicon – optional -->
   <link rel="icon" href="public/ai-avatar.png" />
 </head>
 <body>
   <div class="app-container">
-
-    <section class="panel ai-panel">
-      <header class="panel-header">
+    <!-- AI Assistant Panel - Left Side -->
+    <section class="ai-panel">
+      <header class="ai-header">
         <h2>🤖 AI Assistant</h2>
+        <p>Ask for code and watch it appear!</p>
       </header>
 
       <div id="chatContainer" class="chat-container">
-        </div>
+        <!-- Chat messages will be inserted here -->
+      </div>
 
       <form id="chatForm" class="chat-form">
         <input
           type="text"
           id="promptInput"
-          placeholder="Ask for a navbar, a carousel, …"
+          placeholder="Ask for a navbar, carousel, or any component..."
           autocomplete="off"
           required
         />
-        <button type="submit" class="action-btn">Send</button>
+        <button type="submit" class="send-btn">Send</button>
       </form>
     </section>
 
-    <div class="combined-panel">
-      <section class="panel editor-panel">
-        <header class="panel-header">
-          <h2>📝 Code Editor</h2>
-          <button id="previewBtn" class="action-btn">▶︎ Live Preview</button>
-        </header>
+    <!-- Code Panel - Right Side -->
+    <section class="code-panel">
+      <header class="code-header">
+        <div class="code-tabs">
+          <button class="tab active" data-tab="editor">📝 Code Editor</button>
+        </div>
+        <button id="previewBtn" class="preview-btn">Preview</button>
+      </header>
+
+      <div class="code-content">
+        <div class="editor-container">
+          <textarea id="codeEditor" spellcheck="false" placeholder="Start coding here..."></textarea>
+        </div>
+        
+        <div class="preview-container">
+          <div class="preview-header">Live Preview</div>
+          <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js" type="module"></script>
+</body>
+</html>        </header>
         <textarea id="codeEditor" spellcheck="false"></textarea>
       </section>
 
