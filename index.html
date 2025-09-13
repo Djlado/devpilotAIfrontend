@@ -430,7 +430,7 @@ border-radius: 2px;
             
             let errorMessage = '❌ ';
             if (error.message.includes('Failed to fetch')) {
-                errorMessage += 'Cannot connect to server.';
+                errorMessage += 'Cannot connect to n8n webhook. Check your URL and CORS settings.';
             } else {
                 errorMessage += error.message || 'Something went wrong. Please try again.';
             }
@@ -479,7 +479,43 @@ border-radius: 2px;
     }
 
     // Starter code
-    
+    editor.value = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevPilot AI Demo</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      max-width: 600px;
+      padding: 2rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+    h1 { font-size: 3rem; margin-bottom: 1rem; }
+    p { font-size: 1.2rem; opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DevPilot AI</h1>
+    <p>Ask me to create any web component!</p>
+  </div>
+</body>
+</html>`;
 
     // Auto-preview on load
     setTimeout(() => {
@@ -490,7 +526,7 @@ border-radius: 2px;
     setTimeout(() => {
         addMessage({
             role: 'ai',
-            text: '👋 Hi! i am Devpilot Ai you personal coding assistant. What would you like to build?'
+            text: '👋 Hi! I can create buttons, navbars, cards, forms, and more. What would you like to build?'
         });
     }, 1500);
 
@@ -499,7 +535,7 @@ border-radius: 2px;
         console.log('🔗 Using n8n webhook:', N8N_WEBHOOK_URL);
         addMessage({
             role: 'ai',
-            text: '🔗 Connected to devpilot server. Ready to generate code!'
+            text: '🔗 Connected to n8n workflow. Ready to generate code!'
         });
     }, 2000);
 </script> 
