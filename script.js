@@ -1,111 +1,128 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const codeEditor = document.getElementById('code-editor');
-    const previewIframe = document.getElementById('preview-iframe');
-    const chatHistory = document.getElementById('chat-history');
-    const promptInput = document.getElementById('prompt-input');
-    const sendBtn = document.getElementById('send-btn');
-    const previewBtn = document.getElementById('preview-btn');
+/*** script.js – Plain‑JS Front‑end ***/
+/* Global elements */
+const editor = document.getElementById('codeEditor');
+const previewBtn = document.getElementById('previewBtn');
+const previewFrame = document.getElementById('previewFrame');
+const chatForm = document.getElementById('chatForm');
+const promptInput = document.getElementById('promptInput');
+const chatContainer = document.getElementById('chatContainer');
 
-    let autoPreviewTimeout; // For debounced auto-preview
+/* ----------------------------------------------------------------
+   Helper: Append a chat bubble
+   ---------------------------------------------------------------- */
+function addMessage({ role, text }) {
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  div.textContent = text;
+  chatContainer.appendChild(div);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 
-    // Function to add message to chat history
-    function addMessage(text, type) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', type);
-        messageDiv.textContent = text;
-        chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    // Function to update preview (with error handling)
-    function updatePreview() {
-        const code = codeEditor.value.trim();
-        if (!code) {
-            previewIframe.srcdoc = '<p style="color: #00ffff; text-align: center; padding: 20px;">No code to preview. Type or generate some!</p>';
-            return;
-        }
-
-        try {
-            // Wrap in full HTML if no doctype (helps with incomplete Gemini outputs)
-            let fullCode = code;
-            if (!code.startsWith('<!DOCTYPE')) {
-                fullCode = `<!DOCTYPE html><html><head></head><body>${code}</body></html>`;
-            }
-            previewIframe.srcdoc = fullCode;
-        } catch (error) {
-            previewIframe.srcdoc = `<p style="color: red; padding: 20px;">Preview Error: ${error.message}. Check your code syntax!</p>`;
-            console.error('Preview error:', error);
-        }
-    }
-
-    // Handle send button click
-    sendBtn.addEventListener('click', async () => {
-        const prompt = promptInput.value.trim();
-        if (!prompt) return;
-
-        addMessage(`You: ${prompt}`, 'user-message');
-        promptInput.value = '';
-
-        try {
-            const response = await fetch('https://devpilotbackend-buf4uq0or-nexorai.vercel.app/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt })
-            });
-
-            if (!response.ok) throw new Error('Failed to generate code');
-
-            const data = await response.json();
-            const code = data.code;
-
-            // Insert code into editor (append to existing code)
-            codeEditor.value += (codeEditor.value ? '\n\n' : '') + code;
-
-            addMessage(`AI: Generated and inserted code.`, 'ai-message');
-
-            // Auto-update preview after insertion
-            updatePreview();
-        } catch (error) {
-            addMessage(`AI: Error - ${error.message}`, 'ai-message');
-        }
-    });
-
-    // Handle Enter key in prompt input
-    promptInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendBtn.click();
-    });
-
-    // Handle preview button click
-    previewBtn.addEventListener('click', () => {
-        updatePreview();
-    });
-
-    // Auto-preview on code changes (debounced)
-    codeEditor.addEventListener('input', () => {
-        clearTimeout(autoPreviewTimeout);
-        autoPreviewTimeout = setTimeout(updatePreview, 2000); // 2-second delay
-    });
-
-    // Initial empty preview
-    updatePreview();
+/* ----------------------------------------------------------------
+   1️⃣ Preview button – inject editor content into the iframe
+   ---------------------------------------------------------------- */
+previewBtn.addEventListener('click', () => {
+  const userCode = editor.value;
+  // Very naive sandbox – just wrap HTML+CSS+JS inside <html>.
+  // In production you may want a stricter CSP.
+  const doc = `
+    <html>
+      <head>
+        <style>${extractCSS(userCode)}</style>
+      </head>
+      <body>
+        ${extractHTML(userCode)}
+        <script>${extractJS(userCode)}<\/script>
+      </body>
+    </html>`;
+  previewFrame.srcdoc = doc;
 });
-            // Insert code into editor (append to existing code)
-            codeEditor.value += (codeEditor.value ? '\n\n' : '') + code;
 
-            addMessage(`AI: Generated and inserted code.`, 'ai-message');
-        } catch (error) {
-            addMessage(`AI: Error - ${error.message}`, 'ai-message');
-        }
+/* ----------------------------------------------------------------
+   2️⃣ Chat form – send prompt to backend, insert resulting code
+   ---------------------------------------------------------------- */
+chatForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const prompt = promptInput.value.trim();
+  if (!prompt) return;
+
+  // Show user bubble
+  addMessage({ role: 'user', text: prompt });
+  promptInput.value = '';
+  promptInput.disabled = true;
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
     });
 
-    // Handle preview button click
-    previewBtn.addEventListener('click', () => {
-        previewIframe.srcdoc = codeEditor.value;
-    });
-});
-    addMessage("bot", data.code || "No reply from server");
+    if (!res.ok) throw new Error(`Server ${res.status}`);
+
+    const { code } = await res.json();
+
+    // Show AI bubble (code can be multiline)
+    addMessage({ role: 'ai', text: code });
+
+    // Insert the generated snippet at the cursor position
+    insertAtCursor(editor, code);
   } catch (err) {
-    console.error("Error:", err);
-    addMessage("bot", "⚠️ Error: Could not reach server.");
+    console.error(err);
+    addMessage({ role: 'ai', text: `❗️ Error: ${err.message}` });
+  } finally {
+    promptInput.disabled = false;
+    promptInput.focus();
   }
 });
+
+/* ----------------------------------------------------------------
+   Utility: Insert text at current cursor position in <textarea>
+   ---------------------------------------------------------------- */
+function insertAtCursor(textarea, text) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const before = textarea.value.substring(0, start);
+  const after = textarea.value.substring(end);
+  textarea.value = `${before}${text}${after}`;
+  // put cursor after inserted text
+  const newPos = start + text.length;
+  textarea.selectionStart = textarea.selectionEnd = newPos;
+  textarea.focus();
+}
+
+/* ----------------------------------------------------------------
+   Simple parsers – split a mixed HTML/CSS/JS block into its parts.
+   This is *very* tolerant; you can improve it later.
+   ---------------------------------------------------------------- */
+function extractHTML(src) {
+  // Anything outside <style> or <script> is assumed HTML
+  return src
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .trim();
+}
+function extractCSS(src) {
+  const match = src.match(/<style[\s\S]*?>([\s\S]*?)<\/style>/i);
+  return match ? match[1].trim() : '';
+}
+function extractJS(src) {
+  const match = src.match(/<script[\s\S]*?>([\s\S]*?)<\/script>/i);
+  return match ? match[1].trim() : '';
+}
+
+/* ----------------------------------------------------------------
+   Optional: pre‑populate the editor with a starter skeleton
+   ---------------------------------------------------------------- */
+editor.value = `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial; background:#111; color:#eee; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to DevPilot AI</h1>
+  <p>Ask the AI for code and watch it appear here!</p>
+</body>
+</html>`;
