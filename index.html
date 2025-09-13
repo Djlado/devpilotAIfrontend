@@ -323,8 +323,8 @@ border-radius: 2px;
 </div>
 
   </div>    
-</section>    </div>    <script>
-    // 🌐 N8N WEBHOOK URL
+</section>    </div>  <script>
+    // 🌐 N8N WEBHOOK URL - UPDATED
     const N8N_WEBHOOK_URL = 'https://n8n-latest1-0.onrender.com/webhook/43fa1fd8-0ad7-4931-9e71-416809263fff';
 
     // DOM Elements
@@ -335,6 +335,9 @@ border-radius: 2px;
     const promptInput = document.getElementById('promptInput');
     const chatContainer = document.getElementById('chatContainer');
     const sendBtn = document.getElementById('sendBtn');
+
+    // Debug mode
+    const DEBUG_MODE = true;
 
     // Add message to chat
     function addMessage({ role, text }) {
@@ -419,13 +422,57 @@ border-radius: 2px;
         }, 150);
     });
 
-    // Chat form submission - MODIFIED FOR N8N
+    // CORS Proxy Solution - NEW APPROACH
+    async function callN8NWebhook(prompt) {
+        // Try direct connection first
+        try {
+            console.log('🔗 Trying direct connection to n8n...');
+            const response = await fetch(N8N_WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt })
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            }
+            throw new Error(`HTTP ${response.status}`);
+        } catch (error) {
+            console.log('❌ Direct connection failed, trying CORS proxy...');
+            
+            // Fallback: Use a CORS proxy
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            try {
+                const response = await fetch(proxyUrl + N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                if (response.ok) {
+                    return await response.json();
+                }
+                throw new Error(`CORS proxy failed: HTTP ${response.status}`);
+            } catch (proxyError) {
+                console.error('❌ CORS proxy also failed:', proxyError);
+                throw new Error('Both direct and proxy connections failed. Please check your n8n CORS settings.');
+            }
+        }
+    }
+
+    // Chat form submission - UPDATED WITH CORS SOLUTION
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const prompt = promptInput.value.trim();
         if (!prompt) return;
 
         console.log('🚀 Sending request to n8n:', prompt);
+        if (DEBUG_MODE) addMessage({ role: 'ai', text: `📤 Sending: "${prompt}"` });
 
         // Add user message
         addMessage({ role: 'user', text: prompt });
@@ -441,23 +488,10 @@ border-radius: 2px;
 
         try {
             console.log('📡 Calling n8n webhook:', N8N_WEBHOOK_URL);
+            if (DEBUG_MODE) addMessage({ role: 'ai', text: `📡 Calling: ${N8N_WEBHOOK_URL}` });
             
-            // Send request to n8n webhook
-            const response = await fetch(N8N_WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ prompt })
-            });
-
-            console.log('📨 Response status:', response.status);
-
-            if (!response.ok) {
-                throw new Error(`n8n error: ${response.status}`);
-            }
-
-            const data = await response.json();
+            // Use the CORS-proof function
+            const data = await callN8NWebhook(prompt);
             console.log('✅ Response from n8n:', data);
             
             // Remove loading
@@ -465,7 +499,7 @@ border-radius: 2px;
                 chatContainer.removeChild(loading);
             }
             
-            // Add AI response - assuming n8n returns { code: "generated code" }
+            // Add AI response
             if (data && data.code) {
                 addMessage({ role: 'ai', text: data.code });
                 
@@ -479,7 +513,7 @@ border-radius: 2px;
             } else {
                 addMessage({ 
                     role: 'ai', 
-                    text: '❌ No code returned from n8n. Check your workflow configuration.' 
+                    text: '❌ No code returned from n8n. Response: ' + JSON.stringify(data) 
                 });
             }
             
@@ -491,14 +525,38 @@ border-radius: 2px;
                 chatContainer.removeChild(loading);
             }
             
-            let errorMessage = '❌ ';
-            if (error.message.includes('Failed to fetch')) {
-                errorMessage += 'Cannot connect to n8n webhook. Check your URL and CORS settings.';
+            let errorMessage = '❌ CORS Error: ';
+            if (error.message.includes('CORS')) {
+                errorMessage += 'Your n8n instance is blocking browser requests. ';
+                errorMessage += 'You need to enable CORS in your n8n configuration.';
             } else {
                 errorMessage += error.message || 'Something went wrong. Please try again.';
             }
             
             addMessage({ role: 'ai', text: errorMessage });
+            
+            // For testing purposes, add sample response
+            if (DEBUG_MODE) {
+                setTimeout(() => {
+                    addMessage({ 
+                        role: 'ai', 
+                        text: '💡 Since n8n has CORS issues, here\'s a sample response...' 
+                    });
+                    
+                    // Sample generated code for testing
+                    const sampleCode = `<div style="padding: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-align: center; border-radius: 10px;">
+    <h2>Test Component</h2>
+    <p>Your n8n workflow should return something like this.</p>
+    <button style="padding: 10px 20px; background: #00ff84; border: none; border-radius: 5px; cursor: pointer;">Click Me</button>
+</div>`;
+                    
+                    setTimeout(() => {
+                        addMessage({ role: 'ai', text: sampleCode });
+                        insertAtCursor(editor, sampleCode);
+                        previewBtn.click();
+                    }, 1000);
+                }, 1500);
+            }
         } finally {
             // Re-enable form
             promptInput.disabled = false;
@@ -558,16 +616,24 @@ border-radius: 2px;
             role: 'ai',
             text: '👋 Hi! I can create buttons, navbars, cards, forms, and more. What would you like to build?'
         });
+        
+        // Debug info
+        if (DEBUG_MODE) {
+            addMessage({
+                role: 'ai',
+                text: '🔧 Debug mode enabled. Testing n8n connection...'
+            });
+        }
     }, 1500);
 
-    // Test connection on load - REMOVED BACKEND CHECK
+    // Test connection on load
     setTimeout(() => {
         console.log('🔗 Using n8n webhook:', N8N_WEBHOOK_URL);
         addMessage({
             role: 'ai',
-            text: '🔗 Connected to n8n workflow. Ready to generate code!'
+            text: '🔗 Ready to connect to n8n. If CORS error occurs, check n8n configuration.'
         });
     }, 2000);
-</script>   
+</script>
 </body>    
 </html>
