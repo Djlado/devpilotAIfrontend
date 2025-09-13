@@ -33,26 +33,21 @@
       display: flex;
       height: 100vh;
       width: 100vw;
-      padding: 20px;
-      gap: 20px;
     }
 
     /* AI Panel - Compact */
     .ai-panel {
       width: 320px;
       background: var(--bg-panel);
-      border-radius: 16px;
+      border-right: 2px solid var(--accent-blue);
       display: flex;
       flex-direction: column;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid #333;
     }
 
     .ai-header {
-      padding: 16px 20px;
+      padding: 12px 16px;
       background: var(--bg-darker);
-      border-bottom: 1px solid #333;
-      border-radius: 16px 16px 0 0;
+      border-bottom: 1px solid var(--accent-blue);
       flex-shrink: 0;
     }
 
@@ -60,7 +55,7 @@
       font-size: 16px;
       font-weight: 600;
       color: var(--accent-blue);
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .ai-header p {
@@ -76,29 +71,27 @@
     }
 
     .chat-form {
-      padding: 16px;
+      padding: 12px;
       background: var(--bg-darker);
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid var(--accent-blue);
       display: flex;
-      gap: 12px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
     .chat-form input {
       flex: 1;
-      padding: 12px 16px;
+      padding: 10px 12px;
       background: var(--bg-panel);
-      border: 1px solid #444;
-      border-radius: 12px;
+      border: 1px solid var(--accent-blue);
+      border-radius: 6px;
       color: var(--text-primary);
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
-      transition: all 0.2s ease;
     }
 
     .chat-form input:focus {
       border-color: var(--accent-green);
-      box-shadow: 0 0 0 2px rgba(0, 255, 132, 0.2);
     }
 
     .chat-form input::placeholder {
@@ -107,57 +100,47 @@
     }
 
     .send-btn {
-      padding: 12px 20px;
+      padding: 10px 16px;
       background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
       border: none;
-      border-radius: 12px;
+      border-radius: 6px;
       color: white;
       font-weight: 600;
       cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s ease;
+      font-size: 13px;
     }
 
     .send-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 0, 230, 0.3);
+      opacity: 0.9;
     }
 
     .send-btn:disabled {
       opacity: 0.6;
-      transform: none;
       cursor: not-allowed;
     }
 
     .chat-container {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
       min-height: 0;
     }
 
     .message {
       max-width: 90%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 13px;
-      line-height: 1.4;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.3;
     }
 
     .message.user {
       align-self: flex-end;
       background: linear-gradient(135deg, var(--accent-blue), #0066cc);
       color: white;
-      box-shadow: 0 4px 12px rgba(0, 230, 255, 0.2);
     }
 
     .message.ai {
@@ -165,16 +148,15 @@
       background: var(--bg-darker);
       border: 1px solid #333;
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 10px;
       white-space: pre-wrap;
       word-break: break-word;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     .loading {
       display: inline-block;
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border: 2px solid #333;
       border-radius: 50%;
       border-top-color: var(--accent-blue);
@@ -185,98 +167,88 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Code Panel - Box Shaped */
+    /* Code Panel */
     .code-panel {
       flex: 1;
       display: flex;
       flex-direction: column;
       background: var(--bg-panel);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid #333;
-      overflow: hidden;
     }
 
     .code-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 20px;
+      padding: 10px 14px;
       background: var(--bg-darker);
       border-bottom: 1px solid #333;
       flex-shrink: 0;
     }
 
     .tab {
-      padding: 8px 16px;
+      padding: 6px 10px;
       background: var(--bg-primary);
       color: var(--accent-blue);
       border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
+      border-radius: 4px;
+      font-size: 12px;
     }
 
     .preview-btn {
-      padding: 10px 20px;
+      padding: 6px 12px;
       background: var(--accent-green);
       border: none;
-      border-radius: 10px;
+      border-radius: 4px;
       color: white;
       font-weight: 600;
       cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s ease;
+      font-size: 12px;
     }
 
     .preview-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 255, 132, 0.3);
+      opacity: 0.9;
     }
 
     .code-content {
       flex: 1;
       display: flex;
       min-height: 0;
-      padding: 20px;
-      gap: 20px;
     }
 
-    .editor-box, .preview-box {
+    .editor-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: var(--bg-darker);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      border: 1px solid #333;
-    }
-
-    .editor-header, .preview-header {
-      padding: 12px 16px;
-      background: var(--bg-primary);
-      border-bottom: 1px solid #333;
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     #codeEditor {
       flex: 1;
       width: 100%;
-      padding: 16px;
+      padding: 12px;
       background: var(--bg-primary);
       color: var(--text-primary);
       border: none;
       resize: none;
       outline: none;
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 12px;
+      line-height: 1.4;
       font-family: var(--font-mono);
+    }
+
+    .preview-container {
+      width: 50%;
+      border-left: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      padding: 6px 12px;
+      background: var(--bg-darker);
+      border-bottom: 1px solid #333;
+      font-size: 11px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
     }
 
     #previewFrame {
@@ -287,73 +259,23 @@
 
     /* Scrollbars */
     .chat-container::-webkit-scrollbar {
-      width: 6px;
+      width: 3px;
     }
 
     .chat-container::-webkit-scrollbar-track {
       background: var(--bg-panel);
-      border-radius: 3px;
     }
 
     .chat-container::-webkit-scrollbar-thumb {
       background: var(--accent-blue);
-      border-radius: 3px;
-    }
-
-    #codeEditor::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    #codeEditor::-webkit-scrollbar-track {
-      background: var(--bg-darker);
-      border-radius: 4px;
-    }
-
-    #codeEditor::-webkit-scrollbar-thumb {
-      background: #444;
-      border-radius: 4px;
-    }
-
-    #codeEditor::-webkit-scrollbar-thumb:hover {
-      background: #555;
+      border-radius: 2px;
     }
 
     /* Mobile Responsive */
-    @media (max-width: 968px) {
-      .app-container { 
-        flex-direction: column; 
-        padding: 12px;
-        gap: 12px;
-      }
-      .ai-panel { 
-        width: 100%; 
-        height: 300px; 
-      }
-      .code-content {
-        flex-direction: column;
-        padding: 12px;
-        gap: 12px;
-      }
-      .editor-box, .preview-box {
-        min-height: 250px;
-      }
-    }
-
     @media (max-width: 768px) {
-      .app-container { 
-        padding: 8px;
-        gap: 8px;
-      }
-      .ai-panel { 
-        height: 250px; 
-      }
-      .code-content {
-        padding: 8px;
-        gap: 8px;
-      }
-      .editor-box, .preview-box {
-        min-height: 200px;
-      }
+      .app-container { flex-direction: column; }
+      .ai-panel { width: 100%; height: 200px; }
+      .preview-container { display: none; }
     }
   </style>
 </head>
@@ -390,12 +312,11 @@
       </header>
 
       <div class="code-content">
-        <div class="editor-box">
-          <div class="editor-header">💻 Code Editor</div>
+        <div class="editor-container">
           <textarea id="codeEditor" placeholder="Generated code will appear here..."></textarea>
         </div>
         
-        <div class="preview-box">
+        <div class="preview-container">
           <div class="preview-header">🔍 Live Preview</div>
           <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
         </div>
@@ -405,7 +326,7 @@
 
   <script>
     // n8n Webhook URL
-    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook-test/43fa1fd8-0ad7-4931-9e71-416809263fff';
+    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook/43fa1fd8-0ad7-4931-9e71-416809263fff';
 
     // DOM Elements
     const editor = document.getElementById('codeEditor');
@@ -436,47 +357,17 @@
       return div;
     }
 
-    // Extract HTML/CSS/JS from code
-    function extractHTML(src) {
-      return src
-        .replace(/<style[\s\S]*?<\/style>/gi, '')
-        .replace(/<script[\s\S]*?<\/script>/gi, '')
-        .trim();
-    }
-
-    function extractCSS(src) {
-      const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-      return match ? match[1].trim() : '';
-    }
-
-    function extractJS(src) {
-      const match = src.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
-      return match ? match[1].trim() : '';
-    }
-
     // Preview button
     previewBtn.addEventListener('click', () => {
       const code = editor.value.trim();
-      if (!code) {
-        alert('Please add some code to preview!');
-        return;
-      }
+      if (!code) return;
       
       const doc = `
-        <!DOCTYPE html>
         <html>
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              body { 
-                margin: 0; 
-                padding: 20px; 
-                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-                background: #f8f9fa;
-              }
-              ${extractCSS(code)}
-            </style>
+            <style>${extractCSS(code)}</style>
           </head>
           <body>
             ${extractHTML(code)}
@@ -526,7 +417,7 @@
         }
         
         // Add AI response
-        addMessage({ role: 'ai', text: '✅ Code generated successfully! Click "Preview" to see it.' });
+        addMessage({ role: 'ai', text: data.code });
         
         // Insert code into editor (replace existing content)
         editor.value = data.code;
@@ -543,7 +434,7 @@
         }
         
         // Simple error message
-        addMessage({ role: 'ai', text: '❌ Error generating code. Please try again.' });
+        addMessage({ role: 'ai', text: 'Error generating code. Please try again.' });
       } finally {
         // Re-enable form
         promptInput.disabled = false;
@@ -553,16 +444,26 @@
       }
     });
 
+    // Extract HTML/CSS/JS from code
+    function extractHTML(src) {
+      return src
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .trim();
+    }
+
+    function extractCSS(src) {
+      const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+      return match ? match[1].trim() : '';
+    }
+
+    function extractJS(src) {
+      const match = src.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+      return match ? match[1].trim() : '';
+    }
+
     // Focus input on load
     promptInput.focus();
-
-    // Welcome message
-    setTimeout(() => {
-      addMessage({
-        role: 'ai',
-        text: '👋 Hi! I'm Devpilot Ai. What would you like to build?'
-      });
-    }, 1000);
   </script>
 </body>
 </html>
