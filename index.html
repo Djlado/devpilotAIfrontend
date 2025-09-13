@@ -1,31 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevPilot AI</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>DevPilot AI – Code‑First Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Favicon – optional -->
+  <link rel="icon" href="public/ai-avatar.png" />
 </head>
 <body>
-    <div class="container">
-        <div class="panel editor-panel">
-            <h2>Code Editor</h2>
-            <img src="https://i.imgur.com/SxZRQes.png" alt="Glowing Code Monitor" class="panel-icon">
-            <textarea id="code-editor" placeholder="Your code will appear here..."></textarea>
-            <button id="preview-btn">Preview</button>
-        </div>
-        <div class="panel preview-panel">
-            <h2>Preview Window</h2>
-            <iframe id="preview-iframe" sandbox="allow-scripts"></iframe>
-        </div>
-        <div class="panel ai-panel">
-            <h2>AI Assistant</h2>
-            <img src="https://i.imgur.com/pL11LHs.png" alt="AI Assistant" class="panel-icon">
-            <div id="chat-history"></div>
-            <input type="text" id="prompt-input" placeholder="Type your prompt, e.g., 'Build a navbar with dropdown'">
-            <button id="send-btn">Send</button>
-        </div>
-    </div>
-    <script src="script.js"></script>
+  <!-- -----------------------------------------------------------------
+       Main Layout – three vertical panels.
+       --------------------------------------------------------------- -->
+  <div class="app-container">
+
+    <!-- 1️⃣ CODE EDITOR -->
+    <section class="panel editor-panel">
+      <header class="panel-header">
+        <h2>📝 Code Editor</h2>
+        <button id="previewBtn" class="action-btn">▶︎ Preview</button>
+      </header>
+
+      <!-- A simple <textarea>; replace with Monaco later -->
+      <textarea id="codeEditor" spellcheck="false"></textarea>
+    </section>
+
+    <!-- 2️⃣ PREVIEW WINDOW -->
+    <section class="panel preview-panel">
+      <header class="panel-header">
+        <h2>🔎 Live Preview</h2>
+      </header>
+      <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
+    </section>
+
+    <!-- 3️⃣ AI ASSISTANT -->
+    <section class="panel ai-panel">
+      <header class="panel-header">
+        <h2>🤖 AI Assistant</h2>
+      </header>
+
+      <div id="chatContainer" class="chat-container">
+        <!-- Conversation bubbles are injected here -->
+      </div>
+
+      <form id="chatForm" class="chat-form">
+        <input
+          type="text"
+          id="promptInput"
+          placeholder="Ask for a navbar, a carousel, …"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" class="action-btn">Send</button>
+      </form>
+    </section>
+  </div>
+
+  <script src="script.js" type="module"></script>
 </body>
 </html>
