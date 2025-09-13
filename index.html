@@ -325,7 +325,7 @@ border-radius: 2px;
   </div>    
 </section>    </div>    <script>    
     // 🌐 BACKEND CONNECTION - YOUR VERCEL URL    
-    const API_BASE_URL = 'https://devpilotbackend-buf4uq0or-nexorai.vercel.app';    // DOM Elements    
+    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook/f8fdb8a5-1136-49e6-8447-e1dfd7d65466';    // DOM Elements    
 const editor = document.getElementById('codeEditor');    
 const previewBtn = document.getElementById('previewBtn');    
 const previewFrame = document.getElementById('previewFrame');    
@@ -406,7 +406,7 @@ const loading = showLoading();
 try {
 console.log('📡 Calling API:', ${API_BASE_URL}/api/generate);
 
-const response = await fetch(`${API_BASE_URL}/api/generate`, {    
+const response = await fetch(API_BASE_URL, {    
   method: 'POST',    
   headers: {    
     'Content-Type': 'application/json',    
@@ -550,21 +550,7 @@ text: '👋 Hi! I can create buttons, navbars, cards, forms, and more. What woul
 });
 }, 1500);
 
-// Test connection on load
-setTimeout(async () => {
-try {
-const response = await fetch(${API_BASE_URL}/api/health);
-if (response.ok) {
-console.log('✅ Backend connected successfully');
-}
-} catch (error) {
-console.log('⚠️ Backend not connected. Frontend-only mode.');
-addMessage({
-role: 'ai',
-text: '⚠️ Backend not connected. Please start server.js for AI functionality.'
-});
-}
-}, 2000);
+
 
   </script>    
 </body>    
