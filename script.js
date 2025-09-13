@@ -1,40 +1,54 @@
-// Grab DOM elements
-const form = document.getElementById("chat-form");
-const input = document.getElementById("user-input");
-const chatContainer = document.getElementById("chat-container");
+document.addEventListener('DOMContentLoaded', () => {
+    const codeEditor = document.getElementById('code-editor');
+    const previewIframe = document.getElementById('preview-iframe');
+    const chatHistory = document.getElementById('chat-history');
+    const promptInput = document.getElementById('prompt-input');
+    const sendBtn = document.getElementById('send-btn');
+    const previewBtn = document.getElementById('preview-btn');
 
-// Function to add messages to chat
-function addMessage(sender, text) {
-  const messageDiv = document.createElement("div");
-  messageDiv.classList.add("message", sender);
-  messageDiv.innerText = text;
-  chatContainer.appendChild(messageDiv);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-// Handle form submit
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const userMessage = input.value.trim();
-  if (!userMessage) return;
-
-  addMessage("user", userMessage);
-  input.value = "";
-
-  try {
-    const response = await fetch("https://devai-qzvo7xodt-nexorai.vercel.app/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: userMessage }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Server error: ${response.status}`);
+    // Function to add message to chat history
+    function addMessage(text, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', type);
+        messageDiv.textContent = text;
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
-    const data = await response.json();
+    // Handle send button click
+    sendBtn.addEventListener('click', async () => {
+        const prompt = promptInput.value.trim();
+        if (!prompt) return;
 
+        addMessage(`You: ${prompt}`, 'user-message');
+        promptInput.value = '';
+
+        try {
+            const response = await fetch('http://localhost:3000/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            });
+
+            if (!response.ok) throw new Error('Failed to generate code');
+
+            const data = await response.json();
+            const code = data.code;
+
+            // Insert code into editor (append to existing code)
+            codeEditor.value += (codeEditor.value ? '\n\n' : '') + code;
+
+            addMessage(`AI: Generated and inserted code.`, 'ai-message');
+        } catch (error) {
+            addMessage(`AI: Error - ${error.message}`, 'ai-message');
+        }
+    });
+
+    // Handle preview button click
+    previewBtn.addEventListener('click', () => {
+        previewIframe.srcdoc = codeEditor.value;
+    });
+});
     addMessage("bot", data.code || "No reply from server");
   } catch (err) {
     console.error("Error:", err);
