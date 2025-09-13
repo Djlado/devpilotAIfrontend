@@ -1,411 +1,331 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>DevPilot AI – Code‑First Assistant</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --bg-primary: #0a0a0a;
-      --bg-panel: #1a1a1a;
-      --bg-darker: #111111;
-      --text-primary: #e0e0e0;
-      --text-secondary: #b0b0b0;
-      --accent-blue: #00e6ff;
-      --accent-pink: #ff00e6;
-      --accent-green: #00ff84;
-      --accent-purple: #8b5cf6;
-      --font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-      --font-mono: "Consolas", "Courier New", monospace;
-    }
+<!DOCTYPE html>  <html lang="en">    <head>    
+  <meta charset="UTF-8" />    
+  <title>DevPilot AI – Code‑First Assistant</title>    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+  <style>    
+    :root {    
+      --bg-primary: #0a0a0a;    
+      --bg-panel: #1a1a1a;    
+      --bg-darker: #111111;    
+      --text-primary: #e0e0e0;    
+      --text-secondary: #b0b0b0;    
+      --accent-blue: #00e6ff;    
+      --accent-pink: #ff00e6;    
+      --accent-green: #00ff84;    
+      --accent-purple: #8b5cf6;    
+      --font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;    
+      --font-mono: "Consolas", "Courier New", monospace;    
+    }  * { margin: 0; padding: 0; box-sizing: border-box; }    body {
+font-family: var(--font-family);
+background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+color: var(--text-primary);
+height: 100vh;
+overflow: hidden;
+}
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+.app-container {
+display: flex;
+height: 100vh;
+width: 100vw;
+}
 
-    body {
-      font-family: var(--font-family);
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-      color: var(--text-primary);
-      height: 100vh;
-      overflow: hidden;
-    }
+/* AI Panel */
+.ai-panel {
+width: 350px;
+background: var(--bg-panel);
+border-right: 2px solid var(--accent-blue);
+display: flex;
+flex-direction: column;
+box-shadow: 2px 0 10px rgba(0, 230, 255, 0.1);
+}
 
-    .app-container {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-      padding: 20px;
-      gap: 20px;
-    }
+.ai-header {
+padding: 15px 20px;
+background: var(--bg-darker);
+border-bottom: 2px solid var(--accent-blue);
+flex-shrink: 0;
+}
 
-    /* AI Panel - Compact */
-    .ai-panel {
-      width: 320px;
-      background: var(--bg-panel);
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid #333;
-    }
+.ai-header h2 {
+font-size: 18px;
+font-weight: 700;
+color: var(--accent-blue);
+margin-bottom: 5px;
+text-shadow: 0 0 10px rgba(0, 230, 255, 0.5);
+}
 
-    .ai-header {
-      padding: 16px 20px;
-      background: var(--bg-darker);
-      border-bottom: 1px solid #333;
-      border-radius: 16px 16px 0 0;
-      flex-shrink: 0;
-    }
+.ai-header p {
+font-size: 14px;
+color: var(--text-secondary);
+}
 
-    .ai-header h2 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--accent-blue);
-      margin-bottom: 4px;
-    }
+.chat-section {
+flex: 1;
+display: flex;
+flex-direction: column;
+min-height: 0;
+}
 
-    .ai-header p {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
+.chat-form {
+padding: 15px;
+background: var(--bg-darker);
+border-bottom: 2px solid var(--accent-blue);
+display: flex;
+gap: 10px;
+flex-shrink: 0;
+}
 
-    .chat-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
+.chat-form input {
+flex: 1;
+padding: 12px 15px;
+background: var(--bg-panel);
+border: 1px solid var(--accent-blue);
+border-radius: 8px;
+color: var(--text-primary);
+font-size: 14px;
+outline: none;
+transition: all 0.2s;
+}
 
-    .chat-form {
-      padding: 16px;
-      background: var(--bg-darker);
-      border-bottom: 1px solid #333;
-      display: flex;
-      gap: 12px;
-      flex-shrink: 0;
-    }
+.chat-form input:focus {
+border-color: var(--accent-green);
+box-shadow: 0 0 10px rgba(0, 255, 132, 0.3);
+}
 
-    .chat-form input {
-      flex: 1;
-      padding: 12px 16px;
-      background: var(--bg-panel);
-      border: 1px solid #444;
-      border-radius: 12px;
-      color: var(--text-primary);
-      font-size: 14px;
-      outline: none;
-      transition: all 0.2s ease;
-    }
+.chat-form input::placeholder {
+color: var(--text-secondary);
+opacity: 0.7;
+}
 
-    .chat-form input:focus {
-      border-color: var(--accent-green);
-      box-shadow: 0 0 0 2px rgba(0, 255, 132, 0.2);
-    }
+.send-btn {
+padding: 12px 20px;
+background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+border: none;
+border-radius: 8px;
+color: white;
+font-weight: 600;
+cursor: pointer;
+font-size: 14px;
+transition: all 0.2s;
+}
 
-    .chat-form input::placeholder {
-      color: var(--text-secondary);
-      opacity: 0.7;
-    }
+.send-btn:hover {
+transform: translateY(-1px);
+box-shadow: 0 5px 15px rgba(255, 0, 230, 0.4);
+}
 
-    .send-btn {
-      padding: 12px 20px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s ease;
-    }
+.send-btn:disabled {
+opacity: 0.6;
+transform: none;
+cursor: not-allowed;
+}
 
-    .send-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 0, 230, 0.3);
-    }
+.chat-container {
+flex: 1;
+overflow-y: auto;
+padding: 15px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+min-height: 0;
+}
 
-    .send-btn:disabled {
-      opacity: 0.6;
-      transform: none;
-      cursor: not-allowed;
-    }
+.message {
+max-width: 85%;
+padding: 10px 15px;
+border-radius: 12px;
+font-size: 13px;
+line-height: 1.4;
+animation: fadeIn 0.3s ease-out;
+}
 
-    .chat-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      min-height: 0;
-    }
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
 
-    .message {
-      max-width: 90%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 13px;
-      line-height: 1.4;
-      animation: fadeIn 0.3s ease-out;
-    }
+.message.user {
+align-self: flex-end;
+background: linear-gradient(135deg, var(--accent-blue), #0066cc);
+color: white;
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+.message.ai {
+align-self: flex-start;
+background: var(--bg-darker);
+border: 1px solid #333;
+font-family: var(--font-mono);
+font-size: 11px;
+white-space: pre-wrap;
+word-break: break-word;
+}
 
-    .message.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, var(--accent-blue), #0066cc);
-      color: white;
-      box-shadow: 0 4px 12px rgba(0, 230, 255, 0.2);
-    }
+.loading {
+display: inline-block;
+width: 12px;
+height: 12px;
+border: 2px solid #333;
+border-radius: 50%;
+border-top-color: var(--accent-blue);
+animation: spin 1s ease-in-out infinite;
+}
 
-    .message.ai {
-      align-self: flex-start;
-      background: var(--bg-darker);
-      border: 1px solid #333;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
 
-    .loading {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border: 2px solid #333;
-      border-radius: 50%;
-      border-top-color: var(--accent-blue);
-      animation: spin 1s ease-in-out infinite;
-    }
+/* Code Panel */
+.code-panel {
+flex: 1;
+display: flex;
+flex-direction: column;
+background: var(--bg-panel);
+}
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+.code-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 12px 16px;
+background: var(--bg-darker);
+border-bottom: 1px solid #333;
+flex-shrink: 0;
+}
 
-    /* Code Panel - Box Shaped */
-    .code-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-panel);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid #333;
-      overflow: hidden;
-    }
+.tab {
+padding: 6px 12px;
+background: var(--bg-primary);
+color: var(--accent-blue);
+border: none;
+border-radius: 4px;
+font-size: 13px;
+}
 
-    .code-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      background: var(--bg-darker);
-      border-bottom: 1px solid #333;
-      flex-shrink: 0;
-    }
+.preview-btn {
+padding: 8px 16px;
+background: var(--accent-green);
+border: none;
+border-radius: 6px;
+color: white;
+font-weight: 600;
+cursor: pointer;
+font-size: 13px;
+transition: all 0.2s;
+}
 
-    .tab {
-      padding: 8px 16px;
-      background: var(--bg-primary);
-      color: var(--accent-blue);
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-    }
+.preview-btn:hover {
+opacity: 0.9;
+transform: translateY(-1px);
+}
 
-    .preview-btn {
-      padding: 10px 20px;
-      background: var(--accent-green);
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s ease;
-    }
+.code-content {
+flex: 1;
+display: flex;
+min-height: 0;
+}
 
-    .preview-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 255, 132, 0.3);
-    }
+.editor-container {
+flex: 1;
+display: flex;
+flex-direction: column;
+}
 
-    .code-content {
-      flex: 1;
-      display: flex;
-      min-height: 0;
-      padding: 20px;
-      gap: 20px;
-    }
+#codeEditor {
+flex: 1;
+width: 100%;
+padding: 16px;
+background: var(--bg-primary);
+color: var(--text-primary);
+border: none;
+resize: none;
+outline: none;
+font-size: 13px;
+line-height: 1.5;
+font-family: var(--font-mono);
+}
 
-    .editor-box, .preview-box {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-darker);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      border: 1px solid #333;
-    }
+.preview-container {
+width: 50%;
+border-left: 1px solid #333;
+display: flex;
+flex-direction: column;
+}
 
-    .editor-header, .preview-header {
-      padding: 12px 16px;
-      background: var(--bg-primary);
-      border-bottom: 1px solid #333;
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+.preview-header {
+padding: 8px 16px;
+background: var(--bg-darker);
+border-bottom: 1px solid #333;
+font-size: 12px;
+color: var(--text-secondary);
+flex-shrink: 0;
+}
 
-    #codeEditor {
-      flex: 1;
-      width: 100%;
-      padding: 16px;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      border: none;
-      resize: none;
-      outline: none;
-      font-size: 13px;
-      line-height: 1.5;
-      font-family: var(--font-mono);
-    }
+#previewFrame {
+flex: 1;
+border: none;
+background: white;
+}
 
-    #previewFrame {
-      flex: 1;
-      border: none;
-      background: white;
-    }
+/* Scrollbars */
+.chat-container::-webkit-scrollbar {
+width: 4px;
+}
 
-    /* Scrollbars */
-    .chat-container::-webkit-scrollbar {
-      width: 6px;
-    }
+.chat-container::-webkit-scrollbar-track {
+background: var(--bg-panel);
+}
 
-    .chat-container::-webkit-scrollbar-track {
-      background: var(--bg-panel);
-      border-radius: 3px;
-    }
+.chat-container::-webkit-scrollbar-thumb {
+background: var(--accent-blue);
+border-radius: 2px;
+}
 
-    .chat-container::-webkit-scrollbar-thumb {
-      background: var(--accent-blue);
-      border-radius: 3px;
-    }
+/* Mobile Responsive */
+@media (max-width: 768px) {
+.app-container { flex-direction: column; }
+.ai-panel { width: 100%; height: 250px; }
+.preview-container { display: none; }
+}
 
-    #codeEditor::-webkit-scrollbar {
-      width: 8px;
-    }
+  </style>    
+</head>    
+<body>    
+  <div class="app-container">    
+    <section class="ai-panel">    
+      <header class="ai-header">    
+        <h2>🤖 DevPilot AI</h2>    
+        <p>Your coding assistant</p>    
+      </header>  <div class="chat-section">    
+    <form id="chatForm" class="chat-form">    
+      <input    
+        type="text"    
+        id="promptInput"    
+        placeholder="Type your message here..."    
+        autocomplete="off"    
+        required    
+      />    
+      <button type="submit" class="send-btn" id="sendBtn">Send</button>    
+    </form>    <div id="chatContainer" class="chat-container">    
+  <!-- Messages appear here -->    
+</div>
 
-    #codeEditor::-webkit-scrollbar-track {
-      background: var(--bg-darker);
-      border-radius: 4px;
-    }
+  </div>    
+</section>    <section class="code-panel">    
+  <header class="code-header">    
+    <button class="tab">📝 Editor</button>    
+    <button id="previewBtn" class="preview-btn">▶ Preview</button>    
+  </header>      <div class="code-content">    
+    <div class="editor-container">    
+      <textarea id="codeEditor" placeholder="Your generated code appears here..."></textarea>    
+    </div>    <div class="preview-container">    
+  <div class="preview-header">🔍 Live Preview</div>    
+  <iframe id="previewFrame" sandbox="allow-scripts"></iframe>    
+</div>
 
-    #codeEditor::-webkit-scrollbar-thumb {
-      background: #444;
-      border-radius: 4px;
-    }
-
-    #codeEditor::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 968px) {
-      .app-container { 
-        flex-direction: column; 
-        padding: 12px;
-        gap: 12px;
-      }
-      .ai-panel { 
-        width: 100%; 
-        height: 300px; 
-      }
-      .code-content {
-        flex-direction: column;
-        padding: 12px;
-        gap: 12px;
-      }
-      .editor-box, .preview-box {
-        min-height: 250px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .app-container { 
-        padding: 8px;
-        gap: 8px;
-      }
-      .ai-panel { 
-        height: 250px; 
-      }
-      .code-content {
-        padding: 8px;
-        gap: 8px;
-      }
-      .editor-box, .preview-box {
-        min-height: 200px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="app-container">
-    <section class="ai-panel">
-      <header class="ai-header">
-        <h2>🤖 DevPilot AI</h2>
-        <p>Your coding assistant</p>
-      </header>
-
-      <div class="chat-section">
-        <form id="chatForm" class="chat-form">
-          <input
-            type="text"
-            id="promptInput"
-            placeholder="Type your message here..."
-            autocomplete="off"
-            required
-          />
-          <button type="submit" class="send-btn" id="sendBtn">Send</button>
-        </form>
-
-        <div id="chatContainer" class="chat-container">
-          <!-- Only generated messages appear here -->
-        </div>
-      </div>
-    </section>
-
-    <section class="code-panel">
-      <header class="code-header">
-        <button class="tab">📝 Editor</button>
-        <button id="previewBtn" class="preview-btn">▶ Preview</button>
-      </header>
-
-      <div class="code-content">
-        <div class="editor-box">
-          <div class="editor-header">💻 Code Editor</div>
-          <textarea id="codeEditor" placeholder="Generated code will appear here..."></textarea>
-        </div>
-        
-        <div class="preview-box">
-          <div class="preview-header">🔍 Live Preview</div>
-          <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
-        </div>
-      </div>
-    </section>
-  </div>
-
- <script>
+  </div>    
+</section>    </div> <script>
     // n8n Webhook URL
-    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook-test/43fa1fd8-0ad7-4931-9e71-416809263fff';
+    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook/43fa1fd8-0ad7-4931-9e71-416809263fff';
 
     // DOM Elements
     const editor = document.getElementById('codeEditor');
@@ -564,7 +484,7 @@
         // Add success message
         addMessage({ role: 'ai', text: '✅ Code generated successfully! Click "Preview" to see it.' });
         
-        // Insert code into editor
+        // Insert code into editor (CLEAN - no starter code)
         editor.value = generatedCode;
         
         // Auto preview
@@ -602,44 +522,9 @@
       });
     }, 1000);
 
-    // Starter code
-    editor.value = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DevPilot AI Demo</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      margin: 0;
-      padding: 2rem;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      text-align: center;
-      max-width: 600px;
-      padding: 2rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-    }
-    h1 { font-size: 3rem; margin-bottom: 1rem; }
-    p { font-size: 1.2rem; opacity: 0.9; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>DevPilot AI</h1>
-    <p>Ask me to create any web component!</p>
-  </div>
-</body>
-</html>`;
+    // EMPTY EDITOR - No starter code
+    editor.value = '';
+    editor.placeholder = 'Your generated code will appear here...';
   </script>
-</body>
+</body>    
 </html>
