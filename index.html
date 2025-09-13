@@ -2,38 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>DevPilot AI – Code‑First Assistant</title>
+  <title>DevPilot AI – Code-First Assistant</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Favicon – optional -->
   <link rel="icon" href="public/ai-avatar.png" />
 </head>
 <body>
-  <!-- -----------------------------------------------------------------
-       Main Layout – three vertical panels.
-       --------------------------------------------------------------- -->
   <div class="app-container">
 
-    <!-- 1️⃣ CODE EDITOR -->
-    <section class="panel editor-panel">
-      <header class="panel-header">
-        <h2>📝 Code Editor</h2>
-        <button id="previewBtn" class="action-btn">▶︎ Preview</button>
-      </header>
-
-      <!-- A simple <textarea>; replace with Monaco later -->
-      <textarea id="codeEditor" spellcheck="false"></textarea>
-    </section>
-
-    <!-- 2️⃣ PREVIEW WINDOW -->
-    <section class="panel preview-panel">
-      <header class="panel-header">
-        <h2>🔎 Live Preview</h2>
-      </header>
-      <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
-    </section>
-
-    <!-- 3️⃣ AI ASSISTANT -->
     <section class="panel ai-panel">
+      <header class="panel-header">
+        <h2>🤖 AI Assistant</h2>
+      </header>
+
+      <div id="chatContainer" class="chat-container">
+        </div>
+
+      <form id="chatForm" class="chat-form">
+        <input
+          type="text"
+          id="promptInput"
+          placeholder="Ask for a navbar, a carousel, …"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" class="action-btn">Send</button>
+      </form>
+    </section>
+
+    <div class="combined-panel">
+      <section class="panel editor-panel">
+        <header class="panel-header">
+          <h2>📝 Code Editor</h2>
+          <button id="previewBtn" class="action-btn">▶︎ Live Preview</button>
+        </header>
+        <textarea id="codeEditor" spellcheck="false"></textarea>
+      </section>
+
+      <section class="panel preview-panel">
+        <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
+      </section>
+    </div>
+  </div>
+
+  <script src="script.js" type="module"></script>
+</body>
+</html>
       <header class="panel-header">
         <h2>🤖 AI Assistant</h2>
       </header>
