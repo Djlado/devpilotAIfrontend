@@ -1,207 +1,571 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>DevPilot AI – Code-First Assistant</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    /* --- SAME CSS AS BEFORE (unchanged) --- */
-    :root {
-      --bg-primary: #0a0a0a;
-      --bg-panel: #1a1a1a;
-      --bg-darker: #111111;
-      --text-primary: #e0e0e0;
-      --text-secondary: #b0b0b0;
-      --accent-blue: #00e6ff;
-      --accent-pink: #ff00e6;
-      --accent-green: #00ff84;
-      --accent-purple: #8b5cf6;
-      --font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-      --font-mono: "Consolas", "Courier New", monospace;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: var(--font-family);
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-      color: var(--text-primary);
-      height: 100vh;
-      overflow: hidden;
-    }
-    .app-container {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-    }
-    /* (keeping all your CSS – truncated here for brevity, but unchanged) */
-  </style>
-</head>
-<body>
-  <div class="app-container">
-    <section class="ai-panel">
-      <header class="ai-header">
-        <h2>🤖 DevPilot AI</h2>
-        <p>Your coding assistant</p>
-      </header>
-      <div class="chat-section">
-        <form id="chatForm" class="chat-form">
-          <input type="text" id="promptInput" placeholder="Type your message here..." autocomplete="off" required />
-          <button type="submit" class="send-btn" id="sendBtn">Send</button>
-        </form>
-        <div id="chatContainer" class="chat-container"></div>
-      </div>
-    </section>
-    <section class="code-panel">
-      <header class="code-header">
-        <button class="tab">📝 Editor</button>
-        <button id="previewBtn" class="preview-btn">▶ Preview</button>
-      </header>
-      <div class="code-content">
-        <div class="editor-container">
-          <textarea id="codeEditor" placeholder="Your generated code appears here..."></textarea>
-        </div>
-        <div class="preview-container">
-          <div class="preview-header">🔍 Live Preview</div>
-          <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
-        </div>
-      </div>
-    </section>
-  </div>
+<!DOCTYPE html>  <html lang="en">    <head>    
+  <meta charset="UTF-8" />    
+  <title>DevPilot AI – Code‑First Assistant</title>    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+  <style>    
+    :root {    
+      --bg-primary: #0a0a0a;    
+      --bg-panel: #1a1a1a;    
+      --bg-darker: #111111;    
+      --text-primary: #e0e0e0;    
+      --text-secondary: #b0b0b0;    
+      --accent-blue: #00e6ff;    
+      --accent-pink: #ff00e6;    
+      --accent-green: #00ff84;    
+      --accent-purple: #8b5cf6;    
+      --font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;    
+      --font-mono: "Consolas", "Courier New", monospace;    
+    }  * { margin: 0; padding: 0; box-sizing: border-box; }    body {
+font-family: var(--font-family);
+background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+color: var(--text-primary);
+height: 100vh;
+overflow: hidden;
+}
 
-  <script>
-    // 🌐 N8N WEBHOOK URL
-    const WEBHOOK_URL = "https://n8n-latest1-0.onrender.com/webhook/f8fdb8a5-1136-49e6-8447-e1dfd7d65466";
+.app-container {
+display: flex;
+height: 100vh;
+width: 100vw;
+}
 
-    // DOM Elements
-    const editor = document.getElementById('codeEditor');
-    const previewBtn = document.getElementById('previewBtn');
-    const previewFrame = document.getElementById('previewFrame');
-    const chatForm = document.getElementById('chatForm');
-    const promptInput = document.getElementById('promptInput');
-    const chatContainer = document.getElementById('chatContainer');
-    const sendBtn = document.getElementById('sendBtn');
+/* AI Panel */
+.ai-panel {
+width: 350px;
+background: var(--bg-panel);
+border-right: 2px solid var(--accent-blue);
+display: flex;
+flex-direction: column;
+box-shadow: 2px 0 10px rgba(0, 230, 255, 0.1);
+}
 
-    function addMessage({ role, text }) {
-      const div = document.createElement('div');
-      div.className = `message ${role}`;
-      div.textContent = text;
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return div;
-    }
+.ai-header {
+padding: 15px 20px;
+background: var(--bg-darker);
+border-bottom: 2px solid var(--accent-blue);
+flex-shrink: 0;
+}
 
-    function showLoading() {
-      const div = document.createElement('div');
-      div.className = 'message ai';
-      div.innerHTML = '<div class="loading"></div> Generating code...';
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return div;
-    }
+.ai-header h2 {
+font-size: 18px;
+font-weight: 700;
+color: var(--accent-blue);
+margin-bottom: 5px;
+text-shadow: 0 0 10px rgba(0, 230, 255, 0.5);
+}
 
-    previewBtn.addEventListener('click', () => {
-      const code = editor.value.trim();
-      if (!code) {
-        alert('Please add some code to preview!');
-        return;
-      }
-      const doc = `
-        <html>
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>${extractCSS(code)}</style>
-          </head>
-          <body>
-            ${extractHTML(code)}
-            <script>${extractJS(code)}<\/script>
-          </body>
-        </html>`;
-      previewFrame.srcdoc = doc;
-    });
+.ai-header p {
+font-size: 14px;
+color: var(--text-secondary);
+}
 
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const prompt = promptInput.value.trim();
-      if (!prompt) return;
+.chat-section {
+flex: 1;
+display: flex;
+flex-direction: column;
+min-height: 0;
+}
 
-      addMessage({ role: 'user', text: prompt });
-      promptInput.value = '';
-      promptInput.disabled = true;
-      sendBtn.disabled = true;
-      sendBtn.textContent = 'Generating...';
+.chat-form {
+padding: 15px;
+background: var(--bg-darker);
+border-bottom: 2px solid var(--accent-blue);
+display: flex;
+gap: 10px;
+flex-shrink: 0;
+}
 
-      const loading = showLoading();
+.chat-form input {
+flex: 1;
+padding: 12px 15px;
+background: var(--bg-panel);
+border: 1px solid var(--accent-blue);
+border-radius: 8px;
+color: var(--text-primary);
+font-size: 14px;
+outline: none;
+transition: all 0.2s;
+}
 
-      try {
-        const resp = await fetch(WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
-        });
+.chat-form input:focus {
+border-color: var(--accent-green);
+box-shadow: 0 0 10px rgba(0, 255, 132, 0.3);
+}
 
-        if (!resp.ok) throw new Error(`Server error: ${resp.status}`);
+.chat-form input::placeholder {
+color: var(--text-secondary);
+opacity: 0.7;
+}
 
-        const data = await resp.json();
+.send-btn {
+padding: 12px 20px;
+background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+border: none;
+border-radius: 8px;
+color: white;
+font-weight: 600;
+cursor: pointer;
+font-size: 14px;
+transition: all 0.2s;
+}
 
-        if (loading.parentNode) chatContainer.removeChild(loading);
+.send-btn:hover {
+transform: translateY(-1px);
+box-shadow: 0 5px 15px rgba(255, 0, 230, 0.4);
+}
 
-        const code = data.code || data.result || data.output || JSON.stringify(data);
-        addMessage({ role: 'ai', text: code });
-        insertAtCursor(editor, code);
-        setTimeout(() => previewBtn.click(), 500);
+.send-btn:disabled {
+opacity: 0.6;
+transform: none;
+cursor: not-allowed;
+}
 
-      } catch (error) {
-        if (loading.parentNode) chatContainer.removeChild(loading);
-        addMessage({ role: 'ai', text: '❌ ' + error.message });
-      } finally {
-        promptInput.disabled = false;
-        sendBtn.disabled = false;
-        sendBtn.textContent = 'Send';
-        promptInput.focus();
-      }
-    });
+.chat-container {
+flex: 1;
+overflow-y: auto;
+padding: 15px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+min-height: 0;
+}
 
-    function insertAtCursor(textarea, text) {
-      const start = textarea.selectionStart || 0;
-      const end = textarea.selectionEnd || 0;
-      const before = textarea.value.substring(0, start);
-      const after = textarea.value.substring(end);
-      const separator = (before && !before.endsWith('\n')) ? '\n\n' : '';
-      textarea.value = before + separator + text + after;
-      const newPos = start + separator.length + text.length;
-      textarea.selectionStart = textarea.selectionEnd = newPos;
-      textarea.focus();
-    }
+.message {
+max-width: 85%;
+padding: 10px 15px;
+border-radius: 12px;
+font-size: 13px;
+line-height: 1.4;
+animation: fadeIn 0.3s ease-out;
+}
 
-    function extractHTML(src) {
-      return src.replace(/<style[\s\S]*?<\/style>/gi, '')
-                .replace(/<script[\s\S]*?<\/script>/gi, '')
-                .trim();
-    }
-    function extractCSS(src) {
-      const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-      return match ? match[1].trim() : '';
-    }
-    function extractJS(src) {
-      const match = src.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
-      return match ? match[1].trim() : '';
-    }
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
 
-    // Starter code
-    editor.value = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>DevPilot AI Demo</title>
-  <style>
-    body { font-family: sans-serif; }
-  </style>
-</head>
-<body>
-  <h1>Hello from DevPilot AI!</h1>
-</body>
+.message.user {
+align-self: flex-end;
+background: linear-gradient(135deg, var(--accent-blue), #0066cc);
+color: white;
+}
+
+.message.ai {
+align-self: flex-start;
+background: var(--bg-darker);
+border: 1px solid #333;
+font-family: var(--font-mono);
+font-size: 11px;
+white-space: pre-wrap;
+word-break: break-word;
+}
+
+.loading {
+display: inline-block;
+width: 12px;
+height: 12px;
+border: 2px solid #333;
+border-radius: 50%;
+border-top-color: var(--accent-blue);
+animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+
+/* Code Panel */
+.code-panel {
+flex: 1;
+display: flex;
+flex-direction: column;
+background: var(--bg-panel);
+}
+
+.code-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 12px 16px;
+background: var(--bg-darker);
+border-bottom: 1px solid #333;
+flex-shrink: 0;
+}
+
+.tab {
+padding: 6px 12px;
+background: var(--bg-primary);
+color: var(--accent-blue);
+border: none;
+border-radius: 4px;
+font-size: 13px;
+}
+
+.preview-btn {
+padding: 8px 16px;
+background: var(--accent-green);
+border: none;
+border-radius: 6px;
+color: white;
+font-weight: 600;
+cursor: pointer;
+font-size: 13px;
+transition: all 0.2s;
+}
+
+.preview-btn:hover {
+opacity: 0.9;
+transform: translateY(-1px);
+}
+
+.code-content {
+flex: 1;
+display: flex;
+min-height: 0;
+}
+
+.editor-container {
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+
+#codeEditor {
+flex: 1;
+width: 100%;
+padding: 16px;
+background: var(--bg-primary);
+color: var(--text-primary);
+border: none;
+resize: none;
+outline: none;
+font-size: 13px;
+line-height: 1.5;
+font-family: var(--font-mono);
+}
+
+.preview-container {
+width: 50%;
+border-left: 1px solid #333;
+display: flex;
+flex-direction: column;
+}
+
+.preview-header {
+padding: 8px 16px;
+background: var(--bg-darker);
+border-bottom: 1px solid #333;
+font-size: 12px;
+color: var(--text-secondary);
+flex-shrink: 0;
+}
+
+#previewFrame {
+flex: 1;
+border: none;
+background: white;
+}
+
+/* Scrollbars */
+.chat-container::-webkit-scrollbar {
+width: 4px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+background: var(--bg-panel);
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+background: var(--accent-blue);
+border-radius: 2px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+.app-container { flex-direction: column; }
+.ai-panel { width: 100%; height: 250px; }
+.preview-container { display: none; }
+}
+
+  </style>    
+</head>    
+<body>    
+  <div class="app-container">    
+    <section class="ai-panel">    
+      <header class="ai-header">    
+        <h2>🤖 DevPilot AI</h2>    
+        <p>Your coding assistant</p>    
+      </header>  <div class="chat-section">    
+    <form id="chatForm" class="chat-form">    
+      <input    
+        type="text"    
+        id="promptInput"    
+        placeholder="Type your message here..."    
+        autocomplete="off"    
+        required    
+      />    
+      <button type="submit" class="send-btn" id="sendBtn">Send</button>    
+    </form>    <div id="chatContainer" class="chat-container">    
+  <!-- Messages appear here -->    
+</div>
+
+  </div>    
+</section>    <section class="code-panel">    
+  <header class="code-header">    
+    <button class="tab">📝 Editor</button>    
+    <button id="previewBtn" class="preview-btn">▶ Preview</button>    
+  </header>      <div class="code-content">    
+    <div class="editor-container">    
+      <textarea id="codeEditor" placeholder="Your generated code appears here..."></textarea>    
+    </div>    <div class="preview-container">    
+  <div class="preview-header">🔍 Live Preview</div>    
+  <iframe id="previewFrame" sandbox="allow-scripts"></iframe>    
+</div>
+
+  </div>    
+</section>    </div>    <script>    
+    // 🌐 BACKEND CONNECTION - YOUR VERCEL URL    
+    const API_BASE_URL = 'https://devpilotbackend-buf4uq0or-nexorai.vercel.app';    // DOM Elements    
+const editor = document.getElementById('codeEditor');    
+const previewBtn = document.getElementById('previewBtn');    
+const previewFrame = document.getElementById('previewFrame');    
+const chatForm = document.getElementById('chatForm');    
+const promptInput = document.getElementById('promptInput');    
+const chatContainer = document.getElementById('chatContainer');    
+const sendBtn = document.getElementById('sendBtn');    
+
+// Add message to chat    
+function addMessage({ role, text }) {    
+  const div = document.createElement('div');    
+  div.className = `message ${role}`;    
+  div.textContent = text;    
+  chatContainer.appendChild(div);    
+  chatContainer.scrollTop = chatContainer.scrollHeight;    
+  return div;    
+}    
+
+// Show loading message    
+function showLoading() {    
+  const div = document.createElement('div');    
+  div.className = 'message ai';    
+  div.innerHTML = '<div class="loading"></div> Generating code...';    
+  chatContainer.appendChild(div);    
+  chatContainer.scrollTop = chatContainer.scrollHeight;    
+  return div;    
+}    
+
+// Preview button    
+previewBtn.addEventListener('click', () => {    
+  const code = editor.value.trim();    
+  if (!code) {    
+    alert('Please add some code to preview!');    
+    return;    
+  }    
+      
+  const doc = `    
+    <html>    
+      <head>    
+        <meta charset="UTF-8">    
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+        <style>${extractCSS(code)}</style>  </head>    
+  <body>    
+    ${extractHTML(code)}    
+    <script>${extractJS(code)}<\/script>    
+  </body>    
 </html>`;
-    setTimeout(() => previewBtn.click(), 1000);
-  </script>
-</body>
+
+previewFrame.srcdoc = doc;
+
+// Visual feedback
+previewBtn.style.transform = 'scale(0.95)';
+setTimeout(() => {
+previewBtn.style.transform = 'scale(1)';
+}, 150);
+});
+
+// Chat form submission
+chatForm.addEventListener('submit', async (e) => {
+e.preventDefault();
+const prompt = promptInput.value.trim();
+if (!prompt) return;
+
+console.log('🚀 Sending request:', prompt);
+
+// Add user message
+addMessage({ role: 'user', text: prompt });
+
+// Clear and disable form
+promptInput.value = '';
+promptInput.disabled = true;
+sendBtn.disabled = true;
+sendBtn.textContent = 'Generating...';
+
+// Show loading
+const loading = showLoading();
+
+try {
+console.log('📡 Calling API:', ${API_BASE_URL}/api/generate);
+
+const response = await fetch(`${API_BASE_URL}/api/generate`, {    
+  method: 'POST',    
+  headers: {    
+    'Content-Type': 'application/json',    
+  },    
+  body: JSON.stringify({ prompt })    
+});    
+
+console.log('📨 Response status:', response.status);    
+
+if (!response.ok) {    
+  const errorData = await response.json().catch(() => ({}));    
+  throw new Error(errorData.error || `Server error: ${response.status}`);    
+}    
+
+const data = await response.json();    
+console.log('✅ Code generated successfully');    
+    
+// Remove loading    
+if (loading.parentNode) {    
+  chatContainer.removeChild(loading);    
+}    
+    
+// Add AI response    
+addMessage({ role: 'ai', text: data.code });    
+    
+// Insert code into editor    
+insertAtCursor(editor, data.code);    
+    
+// Auto preview after a short delay    
+setTimeout(() => {    
+  previewBtn.click();    
+}, 500);
+
+} catch (error) {
+console.error('❌ Error:', error);
+
+// Remove loading    
+if (loading.parentNode) {    
+  chatContainer.removeChild(loading);    
+}    
+    
+let errorMessage = '❌ ';    
+if (error.message.includes('Failed to fetch')) {    
+  errorMessage += 'Cannot connect to backend. Make sure server.js is running.';    
+} else if (error.message.includes('API_KEY_MISSING')) {    
+  errorMessage += 'Please add your Gemini API key to server.js';    
+} else {    
+  errorMessage += error.message || 'Something went wrong. Please try again.';    
+}    
+    
+addMessage({ role: 'ai', text: errorMessage });
+
+} finally {
+// Re-enable form
+promptInput.disabled = false;
+sendBtn.disabled = false;
+sendBtn.textContent = 'Send';
+promptInput.focus();
+}
+});
+
+// Insert text at cursor position
+function insertAtCursor(textarea, text) {
+const start = textarea.selectionStart || 0;
+const end = textarea.selectionEnd || 0;
+const before = textarea.value.substring(0, start);
+const after = textarea.value.substring(end);
+
+const separator = (before && !before.endsWith('\n')) ? '\n\n' : '';
+textarea.value = before + separator + text + after;
+
+const newPos = start + separator.length + text.length;
+textarea.selectionStart = textarea.selectionEnd = newPos;
+textarea.focus();
+}
+
+// Extract HTML/CSS/JS from code
+function extractHTML(src) {
+return src
+.replace(/<style[\s\S]?</style>/gi, '')
+.replace(/<script[\s\S]?</script>/gi, '')
+.trim();
+}
+
+function extractCSS(src) {
+const match = src.match(/<style[^>]>([\s\S]?)</style>/i);
+return match ? match[1].trim() : '';
+}
+
+function extractJS(src) {
+const match = src.match(/<script[^>]>([\s\S]?)</script>/i);
+return match ? match[1].trim() : '';
+}
+
+// Starter code
+editor.value = `<!DOCTYPE html>
+
+<html lang="en">    
+<head>    
+  <meta charset="UTF-8">    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+  <title>DevPilot AI Demo</title>    
+  <style>    
+    body {    
+      font-family: 'Segoe UI', system-ui, sans-serif;    
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);    
+      color: white;    
+      margin: 0;    
+      padding: 2rem;    
+      min-height: 100vh;    
+      display: flex;    
+      align-items: center;    
+      justify-content: center;    
+    }    
+    .container {    
+      text-align: center;    
+      max-width: 600px;    
+      padding: 2rem;    
+      background: rgba(255,255,255,0.1);    
+      border-radius: 20px;    
+      backdrop-filter: blur(10px);    
+    }    
+    h1 { font-size: 3rem; margin-bottom: 1rem; }    
+    p { font-size: 1.2rem; opacity: 0.9; }    
+  </style>    
+</head>    
+<body>    
+  <div class="container">    
+    <h1>DevPilot AI</h1>    
+    <p>Ask me to create any web component!</p>    
+  </div>    
+</body>    
+</html>`;  // Auto-preview on load    
+setTimeout(() => {    
+  previewBtn.click();    
+}, 1000);    // Welcome message
+setTimeout(() => {
+addMessage({
+role: 'ai',
+text: '👋 Hi! I can create buttons, navbars, cards, forms, and more. What would you like to build?'
+});
+}, 1500);
+
+// Test connection on load
+setTimeout(async () => {
+try {
+const response = await fetch(${API_BASE_URL}/api/health);
+if (response.ok) {
+console.log('✅ Backend connected successfully');
+}
+} catch (error) {
+console.log('⚠️ Backend not connected. Frontend-only mode.');
+addMessage({
+role: 'ai',
+text: '⚠️ Backend not connected. Please start server.js for AI functionality.'
+});
+}
+}, 2000);
+
+  </script>    
+</body>    
 </html>
