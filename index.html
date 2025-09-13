@@ -1,496 +1,507 @@
-<!DOCTYPE html>  <html lang="en">    <head>    
-  <meta charset="UTF-8" />    
-  <title>DevPilot AI – Code‑First Assistant</title>    
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-  <style>    
-    :root {    
-      --bg-primary: #0a0a0a;    
-      --bg-panel: #1a1a1a;    
-      --bg-darker: #111111;    
-      --text-primary: #e0e0e0;    
-      --text-secondary: #b0b0b0;    
-      --accent-blue: #00e6ff;    
-      --accent-pink: #ff00e6;    
-      --accent-green: #00ff84;    
-      --accent-purple: #8b5cf6;    
-      --font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;    
-      --font-mono: "Consolas", "Courier New", monospace;    
-    }  * { margin: 0; padding: 0; box-sizing: border-box; }    body {
-font-family: var(--font-family);
-background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-color: var(--text-primary);
-height: 100vh;
-overflow: hidden;
-}
-
-.app-container {
-display: flex;
-height: 100vh;
-width: 100vw;
-}
-
-/* AI Panel */
-.ai-panel {
-width: 350px;
-background: var(--bg-panel);
-border-right: 2px solid var(--accent-blue);
-display: flex;
-flex-direction: column;
-box-shadow: 2px 0 10px rgba(0, 230, 255, 0.1);
-}
-
-.ai-header {
-padding: 15px 20px;
-background: var(--bg-darker);
-border-bottom: 2px solid var(--accent-blue);
-flex-shrink: 0;
-}
-
-.ai-header h2 {
-font-size: 18px;
-font-weight: 700;
-color: var(--accent-blue);
-margin-bottom: 5px;
-text-shadow: 0 0 10px rgba(0, 230, 255, 0.5);
-}
-
-.ai-header p {
-font-size: 14px;
-color: var(--text-secondary);
-}
-
-.chat-section {
-flex: 1;
-display: flex;
-flex-direction: column;
-min-height: 0;
-}
-
-.chat-form {
-padding: 15px;
-background: var(--bg-darker);
-border-bottom: 2px solid var(--accent-blue);
-display: flex;
-gap: 10px;
-flex-shrink: 0;
-}
-
-.chat-form input {
-flex: 1;
-padding: 12px 15px;
-background: var(--bg-panel);
-border: 1px solid var(--accent-blue);
-border-radius: 8px;
-color: var(--text-primary);
-font-size: 14px;
-outline: none;
-transition: all 0.2s;
-}
-
-.chat-form input:focus {
-border-color: var(--accent-green);
-box-shadow: 0 0 10px rgba(0, 255, 132, 0.3);
-}
-
-.chat-form input::placeholder {
-color: var(--text-secondary);
-opacity: 0.7;
-}
-
-.send-btn {
-padding: 12px 20px;
-background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
-border: none;
-border-radius: 8px;
-color: white;
-font-weight: 600;
-cursor: pointer;
-font-size: 14px;
-transition: all 0.2s;
-}
-
-.send-btn:hover {
-transform: translateY(-1px);
-box-shadow: 0 5px 15px rgba(255, 0, 230, 0.4);
-}
-
-.send-btn:disabled {
-opacity: 0.6;
-transform: none;
-cursor: not-allowed;
-}
-
-.chat-container {
-flex: 1;
-overflow-y: auto;
-padding: 15px;
-display: flex;
-flex-direction: column;
-gap: 10px;
-min-height: 0;
-}
-
-.message {
-max-width: 85%;
-padding: 10px 15px;
-border-radius: 12px;
-font-size: 13px;
-line-height: 1.4;
-animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-from { opacity: 0; transform: translateY(10px); }
-to { opacity: 1; transform: translateY(0); }
-}
-
-.message.user {
-align-self: flex-end;
-background: linear-gradient(135deg, var(--accent-blue), #0066cc);
-color: white;
-}
-
-.message.ai {
-align-self: flex-start;
-background: var(--bg-darker);
-border: 1px solid #333;
-font-family: var(--font-mono);
-font-size: 11px;
-white-space: pre-wrap;
-word-break: break-word;
-}
-
-.loading {
-display: inline-block;
-width: 12px;
-height: 12px;
-border: 2px solid #333;
-border-radius: 50%;
-border-top-color: var(--accent-blue);
-animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-to { transform: rotate(360deg); }
-}
-
-/* Code Panel */
-.code-panel {
-flex: 1;
-display: flex;
-flex-direction: column;
-background: var(--bg-panel);
-}
-
-.code-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 12px 16px;
-background: var(--bg-darker);
-border-bottom: 1px solid #333;
-flex-shrink: 0;
-}
-
-.tab {
-padding: 6px 12px;
-background: var(--bg-primary);
-color: var(--accent-blue);
-border: none;
-border-radius: 4px;
-font-size: 13px;
-}
-
-.preview-btn {
-padding: 8px 16px;
-background: var(--accent-green);
-border: none;
-border-radius: 6px;
-color: white;
-font-weight: 600;
-cursor: pointer;
-font-size: 13px;
-transition: all 0.2s;
-}
-
-.preview-btn:hover {
-opacity: 0.9;
-transform: translateY(-1px);
-}
-
-.code-content {
-flex: 1;
-display: flex;
-min-height: 0;
-}
-
-.editor-container {
-flex: 1;
-display: flex;
-flex-direction: column;
-}
-
-#codeEditor {
-flex: 1;
-width: 100%;
-padding: 16px;
-background: var(--bg-primary);
-color: var(--text-primary);
-border: none;
-resize: none;
-outline: none;
-font-size: 13px;
-line-height: 1.5;
-font-family: var(--font-mono);
-}
-
-.preview-container {
-width: 50%;
-border-left: 1px solid #333;
-display: flex;
-flex-direction: column;
-}
-
-.preview-header {
-padding: 8px 16px;
-background: var(--bg-darker);
-border-bottom: 1px solid #333;
-font-size: 12px;
-color: var(--text-secondary);
-flex-shrink: 0;
-}
-
-#previewFrame {
-flex: 1;
-border: none;
-background: white;
-}
-
-/* Scrollbars */
-.chat-container::-webkit-scrollbar {
-width: 4px;
-}
-
-.chat-container::-webkit-scrollbar-track {
-background: var(--bg-panel);
-}
-
-.chat-container::-webkit-scrollbar-thumb {
-background: var(--accent-blue);
-border-radius: 2px;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-.app-container { flex-direction: column; }
-.ai-panel { width: 100%; height: 250px; }
-.preview-container { display: none; }
-}
-
-  </style>    
-</head>    
-<body>    
-  <div class="app-container">    
-    <section class="ai-panel">    
-      <header class="ai-header">    
-        <h2>🤖 DevPilot AI</h2>    
-        <p>Your coding assistant</p>    
-      </header>  <div class="chat-section">    
-    <form id="chatForm" class="chat-form">    
-      <input    
-        type="text"    
-        id="promptInput"    
-        placeholder="Type your message here..."    
-        autocomplete="off"    
-        required    
-      />    
-      <button type="submit" class="send-btn" id="sendBtn">Send</button>    
-    </form>    <div id="chatContainer" class="chat-container">    
-  <!-- Messages appear here -->    
-</div>
-
-  </div>    
-</section>    <section class="code-panel">    
-  <header class="code-header">    
-    <button class="tab">📝 Editor</button>    
-    <button id="previewBtn" class="preview-btn">▶ Preview</button>    
-  </header>      <div class="code-content">    
-    <div class="editor-container">    
-      <textarea id="codeEditor" placeholder="Your generated code appears here..."></textarea>    
-    </div>    <div class="preview-container">    
-  <div class="preview-header">🔍 Live Preview</div>    
-  <iframe id="previewFrame" sandbox="allow-scripts"></iframe>    
-</div>
-
-  </div>    
-</section>    </div>   <script>
-    // n8n Webhook URL
-    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook-test/43fa1fd8-0ad7-4931-9e71-416809263fff';
-
-    // DOM Elements
-    const editor = document.getElementById('codeEditor');
-    const previewBtn = document.getElementById('previewBtn');
-    const previewFrame = document.getElementById('previewFrame');
-    const chatForm = document.getElementById('chatForm');
-    const promptInput = document.getElementById('promptInput');
-    const chatContainer = document.getElementById('chatContainer');
-    const sendBtn = document.getElementById('sendBtn');
-
-    // Add message to chat
-    function addMessage({ role, text }) {
-      const div = document.createElement('div');
-      div.className = `message ${role}`;
-      div.textContent = text;
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return div;
-    }
-
-    // Show loading message
-    function showLoading() {
-      const div = document.createElement('div');
-      div.className = 'message ai';
-      div.innerHTML = '<div class="loading"></div> Generating...';
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return div;
-    }
-
-    // Extract HTML/CSS/JS from code
-    function extractHTML(src) {
-      return src
-        .replace(/<style[\s\S]*?<\/style>/gi, '')
-        .replace(/<script[\s\S]*?<\/script>/gi, '')
-        .trim();
-    }
-
-    function extractCSS(src) {
-      const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-      return match ? match[1].trim() : '';
-    }
-
-    function extractJS(src) {
-      const match = src.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
-      return match ? match[1].trim() : '';
-    }
-
-    // Preview button
-    previewBtn.addEventListener('click', () => {
-      const code = editor.value.trim();
-      if (!code) {
-        alert('Please add some code to preview!');
-        return;
+<!DOCTYPE html>  
+<html lang="en">    
+  <head>    
+    <meta charset="UTF-8" />    
+    <title>DevPilot AI – Code‑First Assistant</title>    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <style>    
+      :root {    
+        --bg-primary: #0a0a0a;    
+        --bg-panel: #1a1a1a;    
+        --bg-darker: #111111;    
+        --text-primary: #e0e0e0;    
+        --text-secondary: #b0b0b0;    
+        --accent-blue: #00e6ff;    
+        --accent-pink: #ff00e6;    
+        --accent-green: #00ff84;    
+        --accent-purple: #8b5cf6;    
+        --font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;    
+        --font-mono: "Consolas", "Courier New", monospace;    
+      }  
+      
+      * { margin: 0; padding: 0; box-sizing: border-box; }    
+      
+      body {
+        font-family: var(--font-family);
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
       }
-      
-      const doc = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              body { 
-                margin: 0; 
-                padding: 20px; 
-                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-                background: #f8f9fa;
-              }
-              ${extractCSS(code)}
-            </style>
-          </head>
-          <body>
-            ${extractHTML(code)}
-            <script>${extractJS(code)}<\/script>
-          </body>
-        </html>`;
-      
-      previewFrame.srcdoc = doc;
-    });
 
-    // Chat form submission - SHOWS RAW RESPONSE
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const prompt = promptInput.value.trim();
-      if (!prompt) return;
-
-      // Add user message
-      addMessage({ role: 'user', text: prompt });
-      
-      // Clear and disable form
-      promptInput.value = '';
-      promptInput.disabled = true;
-      sendBtn.disabled = true;
-      sendBtn.textContent = 'Generating...';
-
-      // Show loading
-      const loading = showLoading();
-
-      try {
-        const response = await fetch(API_BASE_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ prompt })
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error: ${response.status}`);
-        }
-
-        // Get the raw response text
-        const rawResponse = await response.text();
-        
-        // Remove loading
-        if (loading.parentNode) {
-          chatContainer.removeChild(loading);
-        }
-        
-        // Add success message
-        addMessage({ role: 'ai', text: '✅ Response received! Check the editor.' });
-        
-        // Show EXACTLY what was received in the editor
-        editor.value = rawResponse;
-        
-        // Auto preview (will try to extract HTML from whatever was received)
-        setTimeout(() => {
-          previewBtn.click();
-        }, 300);
-        
-      } catch (error) {
-        // Remove loading
-        if (loading.parentNode) {
-          chatContainer.removeChild(loading);
-        }
-        
-        // Show error in editor instead of chat
-        editor.value = `Error: ${error.message}\n\nserver error.`;
-        
-        // Also show brief message in chat
-        addMessage({ role: 'ai', text: '❌ Connection error. Check editor for details.' });
-      } finally {
-        // Re-enable form
-        promptInput.disabled = false;
-        sendBtn.disabled = false;
-        sendBtn.textContent = 'Send';
-        promptInput.focus();
+      .app-container {
+        display: flex;
+        height: 100vh;
+        width: 100vw;
       }
-    });
 
-    // Focus input on load
-    promptInput.focus();
+      /* AI Panel */
+      .ai-panel {
+        width: 350px;
+        background: var(--bg-panel);
+        border-right: 2px solid var(--accent-blue);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 2px 0 10px rgba(0, 230, 255, 0.1);
+      }
 
-    // Welcome message
-    setTimeout(() => {
-      addMessage({
-        role: 'ai',
-        text: '👋 Hi I'm Devpilot AI your personal coding assistant. What would you like to build?'
+      .ai-header {
+        padding: 15px 20px;
+        background: var(--bg-darker);
+        border-bottom: 2px solid var(--accent-blue);
+        flex-shrink: 0;
+      }
+
+      .ai-header h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent-blue);
+        margin-bottom: 5px;
+        text-shadow: 0 0 10px rgba(0, 230, 255, 0.5);
+      }
+
+      .ai-header p {
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      .chat-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .chat-form {
+        padding: 15px;
+        background: var(--bg-darker);
+        border-bottom: 2px solid var(--accent-blue);
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      .chat-form input {
+        flex: 1;
+        padding: 12px 15px;
+        background: var(--bg-panel);
+        border: 1px solid var(--accent-blue);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+      }
+
+      .chat-form input:focus {
+        border-color: var(--accent-green);
+        box-shadow: 0 0 10px rgba(0, 255, 132, 0.3);
+      }
+
+      .chat-form input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+      }
+
+      .send-btn {
+        padding: 12px 20px;
+        background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .send-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(255, 0, 230, 0.4);
+      }
+
+      .send-btn:disabled {
+        opacity: 0.6;
+        transform: none;
+        cursor: not-allowed;
+      }
+
+      .chat-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 0;
+      }
+
+      .message {
+        max-width: 85%;
+        padding: 10px 15px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.4;
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .message.user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, var(--accent-blue), #0066cc);
+        color: white;
+      }
+
+      .message.ai {
+        align-self: flex-start;
+        background: var(--bg-darker);
+        border: 1px solid #333;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid #333;
+        border-radius: 50%;
+        border-top-color: var(--accent-blue);
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Code Panel */
+      .code-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-panel);
+      }
+
+      .code-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: var(--bg-darker);
+        border-bottom: 1px solid #333;
+        flex-shrink: 0;
+      }
+
+      .tab {
+        padding: 6px 12px;
+        background: var(--bg-primary);
+        color: var(--accent-blue);
+        border: none;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+
+      .preview-btn {
+        padding: 8px 16px;
+        background: var(--accent-green);
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+      }
+
+      .preview-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+
+      .code-content {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+      }
+
+      .editor-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #codeEditor {
+        flex: 1;
+        width: 100%;
+        padding: 16px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border: none;
+        resize: none;
+        outline: none;
+        font-size: 13px;
+        line-height: 1.5;
+        font-family: var(--font-mono);
+      }
+
+      .preview-container {
+        width: 50%;
+        border-left: 1px solid #333;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .preview-header {
+        padding: 8px 16px;
+        background: var(--bg-darker);
+        border-bottom: 1px solid #333;
+        font-size: 12px;
+        color: var(--text-secondary);
+        flex-shrink: 0;
+      }
+
+      #previewFrame {
+        flex: 1;
+        border: none;
+        background: white;
+      }
+
+      /* Scrollbars */
+      .chat-container::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .chat-container::-webkit-scrollbar-track {
+        background: var(--bg-panel);
+      }
+
+      .chat-container::-webkit-scrollbar-thumb {
+        background: var(--accent-blue);
+        border-radius: 2px;
+      }
+
+      /* Mobile Responsive */
+      @media (max-width: 768px) {
+        .app-container { flex-direction: column; }
+        .ai-panel { width: 100%; height: 250px; }
+        .preview-container { display: none; }
+      }
+    </style>    
+  </head>    
+  <body>    
+    <div class="app-container">    
+      <section class="ai-panel">    
+        <header class="ai-header">    
+          <h2>🤖 DevPilot AI</h2>    
+          <p>Your coding assistant</p>    
+        </header>  
+        <div class="chat-section">    
+          <form id="chatForm" class="chat-form">    
+            <input    
+              type="text"    
+              id="promptInput"    
+              placeholder="Type your message here..."    
+              autocomplete="off"    
+              required    
+            />    
+            <button type="submit" class="send-btn" id="sendBtn">Send</button>    
+          </form>    
+          <div id="chatContainer" class="chat-container">    
+            <!-- Messages appear here -->    
+          </div>
+        </div>    
+      </section>    
+      <section class="code-panel">    
+        <header class="code-header">    
+          <button class="tab">📝 Editor</button>    
+          <button id="previewBtn" class="preview-btn">▶ Preview</button>    
+        </header>      
+        <div class="code-content">    
+          <div class="editor-container">    
+            <textarea id="codeEditor" placeholder="Your generated code appears here..."></textarea>    
+          </div>    
+          <div class="preview-container">    
+            <div class="preview-header">🔍 Live Preview</div>    
+            <iframe id="previewFrame" sandbox="allow-scripts"></iframe>    
+          </div>
+        </div>    
+      </section>    
+    </div>   
+    
+    <script>
+      // n8n Webhook URL
+      const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook-test/43fa1fd8-0ad7-4931-9e71-416809263fff';
+
+      // DOM Elements
+      const editor = document.getElementById('codeEditor');
+      const previewBtn = document.getElementById('previewBtn');
+      const previewFrame = document.getElementById('previewFrame');
+      const chatForm = document.getElementById('chatForm');
+      const promptInput = document.getElementById('promptInput');
+      const chatContainer = document.getElementById('chatContainer');
+      const sendBtn = document.getElementById('sendBtn');
+
+      // Add message to chat
+      function addMessage({ role, text }) {
+        const div = document.createElement('div');
+        div.className = `message ${role}`;
+        div.textContent = text;
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        return div;
+      }
+
+      // Show loading message
+      function showLoading() {
+        const div = document.createElement('div');
+        div.className = 'message ai';
+        div.innerHTML = '<div class="loading"></div> Generating...';
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        return div;
+      }
+
+      // Extract HTML/CSS/JS from code
+      function extractHTML(src) {
+        return src
+          .replace(/<style[\s\S]*?<\/style>/gi, '')
+          .replace(/<script[\s\S]*?<\/script>/gi, '')
+          .trim();
+      }
+
+      function extractCSS(src) {
+        const match = src.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+        return match ? match[1].trim() : '';
+      }
+
+      function extractJS(src) {
+        const match = src.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+        return match ? match[1].trim() : '';
+      }
+
+      // Preview button
+      previewBtn.addEventListener('click', () => {
+        const code = editor.value.trim();
+        if (!code) {
+          alert('Please add some code to preview!');
+          return;
+        }
+        
+        const doc = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body { 
+                  margin: 0; 
+                  padding: 20px; 
+                  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                  background: #f8f9fa;
+                }
+                ${extractCSS(code)}
+              </style>
+            </head>
+            <body>
+              ${extractHTML(code)}
+              <script>${extractJS(code)}<\/script>
+            </body>
+          </html>`;
+        
+        previewFrame.srcdoc = doc;
       });
-    }, 1000);
 
-    // Empty editor
-    editor.value = '';
-    editor.placeholder = 'Raw response from n8n will appear here...';
-  </script>
-</body>    
+      // Chat form submission - SHOWS RAW RESPONSE
+      chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const prompt = promptInput.value.trim();
+        if (!prompt) return;
+
+        // Add user message
+        addMessage({ role: 'user', text: prompt });
+        
+        // Clear and disable form
+        promptInput.value = '';
+        promptInput.disabled = true;
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Generating...';
+
+        // Show loading
+        const loading = showLoading();
+
+        try {
+          const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+          }
+
+          // Get the raw response text
+          const rawResponse = await response.text();
+          
+          // Remove loading
+          if (loading.parentNode) {
+            chatContainer.removeChild(loading);
+          }
+          
+          // Add success message
+          addMessage({ role: 'ai', text: '✅ Response received! Check the editor.' });
+          
+          // Show EXACTLY what was received in the editor
+          editor.value = rawResponse;
+          
+          // Auto preview (will try to extract HTML from whatever was received)
+          setTimeout(() => {
+            previewBtn.click();
+          }, 300);
+          
+        } catch (error) {
+          // Remove loading
+          if (loading.parentNode) {
+            chatContainer.removeChild(loading);
+          }
+          
+          // Show error in editor instead of chat
+          editor.value = `Error: ${error.message}\n\nserver error.`;
+          
+          // Also show brief message in chat
+          addMessage({ role: 'ai', text: '❌ Connection error. Check editor for details.' });
+        } finally {
+          // Re-enable form
+          promptInput.disabled = false;
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Send';
+          promptInput.focus();
+        }
+      });
+
+      // Focus input on load
+      promptInput.focus();
+
+      // Welcome message - FIXED THE SYNTAX ERROR HERE
+      setTimeout(() => {
+        addMessage({
+          role: 'ai',
+          text: '👋 Hi I\'m Devpilot AI your personal coding assistant. What would you like to build?'
+        });
+      }, 1000);
+
+      // Empty editor
+      editor.value = '';
+      editor.placeholder = 'Raw response from n8n will appear here...';
+    </script>
+  </body>    
 </html>
