@@ -403,9 +403,9 @@
     </section>
   </div>
 
-  <script>
+ <script>
     // n8n Webhook URL
-    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook-test/43fa1fd8-0ad7-4931-9e71-416809263fff';
+    const API_BASE_URL = 'https://n8n-latest1-0.onrender.com/webhook/43fa1fd8-0ad7-4931-9e71-416809263fff';
 
     // DOM Elements
     const editor = document.getElementById('codeEditor');
@@ -487,11 +487,13 @@
       previewFrame.srcdoc = doc;
     });
 
-    // Chat form submission
+    // Chat form submission - FIXED FOR DIFFERENT RESPONSE FORMATS
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const prompt = promptInput.value.trim();
       if (!prompt) return;
+
+      console.log('Sending request to n8n...');
 
       // Add user message
       addMessage({ role: 'user', text: prompt });
@@ -514,22 +516,56 @@
           body: JSON.stringify({ prompt })
         });
 
+        console.log('Response status:', response.status);
+
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+          throw new Error(`HTTP error: ${response.status}`);
         }
 
-        const data = await response.json();
-        
+        // Get response as text first to handle different formats
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        let generatedCode = '';
+
+        // Try to parse as JSON
+        try {
+          const data = JSON.parse(responseText);
+          console.log('Parsed JSON:', data);
+          
+          // Handle different possible response formats from n8n
+          if (data && data.code) {
+            generatedCode = data.code;
+          } 
+          else if (data && data.response) {
+            generatedCode = data.response;
+          }
+          else if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+            generatedCode = data.candidates[0].content.parts[0].text;
+          }
+          else if (typeof data === 'string') {
+            generatedCode = data;
+          }
+          else {
+            // If it's JSON but we don't recognize the format, show the raw data
+            generatedCode = '// Response format not recognized. Raw data:\n' + JSON.stringify(data, null, 2);
+          }
+        } catch (jsonError) {
+          // If not JSON, use the raw text response
+          console.log('Response is not JSON, using raw text');
+          generatedCode = responseText;
+        }
+
         // Remove loading
         if (loading.parentNode) {
           chatContainer.removeChild(loading);
         }
         
-        // Add AI response
+        // Add success message
         addMessage({ role: 'ai', text: '✅ Code generated successfully! Click "Preview" to see it.' });
         
-        // Insert code into editor (replace existing content)
-        editor.value = data.code;
+        // Insert code into editor
+        editor.value = generatedCode;
         
         // Auto preview
         setTimeout(() => {
@@ -537,13 +573,15 @@
         }, 300);
         
       } catch (error) {
+        console.error('Error:', error);
+        
         // Remove loading
         if (loading.parentNode) {
           chatContainer.removeChild(loading);
         }
         
-        // Simple error message
-        addMessage({ role: 'ai', text: '❌ Error generating code. Please try again.' });
+        // Error message
+        addMessage({ role: 'ai', text: '❌ Error: ' + error.message });
       } finally {
         // Re-enable form
         promptInput.disabled = false;
@@ -563,6 +601,45 @@
         text: '👋 Hi! I can create buttons, navbars, cards, forms, and more. What would you like to build?'
       });
     }, 1000);
+
+    // Starter code
+    editor.value = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevPilot AI Demo</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      max-width: 600px;
+      padding: 2rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+    h1 { font-size: 3rem; margin-bottom: 1rem; }
+    p { font-size: 1.2rem; opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DevPilot AI</h1>
+    <p>Ask me to create any web component!</p>
+  </div>
+</body>
+</html>`;
   </script>
 </body>
 </html>
